@@ -1,3 +1,15 @@
+"""
+    UtilsKit.ForMethods
+
+Method/type introspection helpers:
+- list method signatures with file/line info
+- summarize type hierarchies and subtypes
+- utilities to collect module definitions and provide `purpose` hooks
+"""
+module ForMethods
+
+using InteractiveUtils: subtypes
+
 export doNothing
 export getMethodTypes
 export getDefinitions
@@ -19,9 +31,18 @@ Returns the input as is, without any modifications.
 
 # Returns:
 The same input data.
+
+# Examples
+
+```jldoctest
+julia> using UtilsKit
+
+julia> doNothing(1)
+1
+```
 """
-function doNothing(_data)
-    return _data
+function doNothing(x)
+    return x
 end
 
 
@@ -40,6 +61,17 @@ Return method signature strings for `f`, including file/line information.
 - `:absolute`: absolute paths.
 
 Default-arg wrapper methods are collapsed: for each unique `(file,line,module)` only the largest-arity method is kept.
+
+# Examples
+
+```jldoctest
+julia> using UtilsKit
+
+julia> sigs = getMethodSignatures(+);
+
+julia> sigs isa Vector{String}
+true
+```
 """
 function getMethodSignatures(f::Function; path::Symbol = :relative_pwd)
     path in (:relative_pwd, :relative_root, :absolute) ||
@@ -142,12 +174,21 @@ function example_function(x::Float64, y::Bool) end
 types = getMethodTypes(example_function)
 println(types) # Output: [Int64, Float64]
 ```
+
+# Examples
+
+```jldoctest
+julia> using UtilsKit
+
+julia> getMethodTypes(+) isa AbstractVector
+true
+```
 """
-function getMethodTypes(fn)
+function getMethodTypes(f)
     # Get the method table for the function
-    mt = methods(fn)
+    mt = methods(f)
     # Extract the types of the first method
-    method_types = map(m -> m.sig.parameters[2], mt)
+    method_types = map(m -> Base.unwrap_unionall(m.sig).parameters[2], mt)
     return method_types
 end
 
@@ -184,10 +225,10 @@ methodsOf(LandEcosystem; ds=", ", bullet=" * ")
 methodsOf(LandEcosystem; is_subtype=true)
 
 # Display types in a module
-methodsOf(Sindbad)
+methodsOf(MyModule)
 
 # Display specific types in a module
-methodsOf(Sindbad; the_type=Function)
+methodsOf(MyModule; the_type=Function)
 ```
 
 # Extended help
@@ -204,6 +245,15 @@ Purpose of the type
 ```
 
 If no subtypes exist, it will show " - `None`".
+
+# Examples
+
+```jldoctest
+julia> using UtilsKit
+
+julia> occursin("Available", methodsOf(Int))
+true
+```
 """
 function methodsOf end
 
@@ -251,6 +301,17 @@ Print method signatures as a bulleted list.
 
 - The leading `path:line` segment (when present) is colored (defaults to `:cyan`).
 - Uses [`getMethodSignatures`](@ref) under the hood.
+
+# Examples
+
+```jldoctest
+julia> using UtilsKit
+
+julia> redirect_stdout(devnull) do
+           printMethodSignatures(+)
+       end === nothing
+true
+```
 """
 function printMethodSignatures(f::Function; path::Symbol = :relative_pwd, io::IO = stdout, path_color::Symbol = :cyan)
     for s in getMethodSignatures(f; path=path)
@@ -307,16 +368,27 @@ Purpose of the type
 ```
 
 This function is a convenience wrapper around `methodsOf` that automatically prints the output to the console.
+
+# Examples
+
+```jldoctest
+julia> using UtilsKit
+
+julia> redirect_stdout(devnull) do
+           showMethodsOf(Int)
+       end === nothing
+true
+```
 """
-function showMethodsOf(T; purpose_function=Base.Docs.doc)
-    println(methodsOf(T, purpose_function=purpose_function))
+function showMethodsOf(typ; purpose_function=Base.Docs.doc)
+    println(methodsOf(typ, purpose_function=purpose_function))
     return nothing
 end
 
 """
 getDefinitions(a_module, what_to_get; internal_only=true)
 
-Returns all defined (and optionally internal) objects in the SINDBAD framework.
+Returns all defined (and optionally internal) objects in a module.
 
 # Arguments
 - `a_module`: The module to search for defined things
@@ -324,23 +396,32 @@ Returns all defined (and optionally internal) objects in the SINDBAD framework.
 - `internal_only`: Whether to only include internal definitions (default: true)
 
 # Returns
-- An array of all defined things in the SINDBAD framework
+- An array of all defined things in the module
 
 # Example
 ```julia
-# Get all defined types in the SINDBAD framework
-defined_types = getDefinitions(SindbadTEM, Type)
+# Get all defined types in a module
+defined_types = getDefinitions(MyModule, Type)
+```
+
+# Examples
+
+```jldoctest
+julia> using UtilsKit
+
+julia> getDefinitions(UtilsKit, Function; internal_only=false) isa Vector
+true
 ```
 """
-function getDefinitions(a_module, what_to_get; internal_only=true)
-    all_defined_things = filter(x -> isdefined(a_module, x) && isa(getproperty(a_module, x), what_to_get), names(a_module))
+function getDefinitions(mod::Module, kind; internal_only=true)
+    all_defined_things = filter(x -> isdefined(mod, x) && isa(getproperty(mod, x), kind), names(mod))
     defined_things = all_defined_things
     if internal_only
         defined_things = []
         for d_thing in all_defined_things
-            d = getproperty(a_module, d_thing)
+            d = getproperty(mod, d_thing)
             d_parent = parentmodule(d)
-            if nameof(d_parent) == nameof(a_module)
+            if nameof(d_parent) == nameof(mod)
                 push!(defined_things, d)
             end
         end
@@ -353,12 +434,12 @@ end
 """
     purpose(T::Type)
 
-Returns a string describing the purpose of a type in the SINDBAD framework.
+Returns a string describing the purpose of a type.
 
 # Description
 - This is a base function that should be extended by each package for their specific types.
-- When in SINDBAD models, purpose is a descriptive string that explains the role or functionality of the model or approach within the SINDBAD framework. If the purpose is not defined for a specific model or approach, it provides guidance on how to define it.
-- When in SINDBAD lib, purpose is a descriptive string that explains the dispatch on the type for the specific function. For instance, metricTypes.jl has a purpose for the types of metrics that can be computed.
+- `purpose(::Type{T})` should return a descriptive string explaining the role / meaning of `T`.
+- If the purpose is not defined for a specific type, the default implementation provides guidance on how to define it.
 
 
 # Arguments
@@ -374,6 +455,15 @@ purpose(::Type{BayesOptKMaternARD5}) = "Bayesian Optimization using Matern 5/2 k
 
 # Retrieve the purpose
 println(purpose(BayesOptKMaternARD5))  # Output: "Bayesian Optimization using Matern 5/2 kernel with Automatic Relevance Determination from BayesOpt.jl"
+```
+
+# Examples
+
+```jldoctest
+julia> using UtilsKit
+
+julia> occursin("Undefined purpose", purpose(Int))
+true
 ```
 """
 function purpose end
@@ -392,7 +482,18 @@ Returns the symbol corresponding to the type of the input value.
 
 # Returns:
 A `Symbol` representing the type of the input value.
+
+# Examples
+
+```jldoctest
+julia> using UtilsKit
+
+julia> valToSymbol(Val(:x))
+:x
+```
 """
-function valToSymbol(val)
-    return typeof(val).parameters[1]
+function valToSymbol(x)
+    return typeof(x).parameters[1]
 end
+
+end # module ForMethods

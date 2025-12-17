@@ -1,5 +1,18 @@
-export entertainMe
+"""
+    UtilsKit.ForDisplay
+
+Display / logging utilities:
+- banners (FIGlet) and lightweight terminal UI helpers
+- log level helpers and styled informational output
+"""
+module ForDisplay
+
+using Crayons
+using Logging
+using FIGlet
+
 export setLogLevel
+export displayFIGletBanner
 export displayBanner
 export showInfo
 export showInfoSeparator
@@ -9,30 +22,58 @@ figlet_fonts = ("3D Diagonal", "3D-ASCII", "3d", "4max", "5 Line Oblique", "5x7"
 
 
 """
-    entertainMe(n=10, disp_text="SINDBAD")
+    entertainMe(n=10, disp_text="UtilsKit")
 
 Displays the given text `disp_text` as a banner `n` times.
 
 # Arguments:
 - `n`: Number of times to display the banner (default: 10).
-- `disp_text`: The text to display (default: "SINDBAD").
-- `c_olor`: Whether to display the text in random colors (default: `false`).
+- `disp_text`: The text to display (default: "UtilsKit").
+- `color`: Whether to display the text in random colors (default: `true`).
+
+# Notes:
+- `c_olor` is a deprecated alias for `color`.
+- `entertainMe` itself is deprecated; use `displayFIGletBanner(disp_text; n=..., color=...)`.
+
+# Examples
+
+```jldoctest
+julia> using UtilsKit
+
+julia> redirect_stdout(devnull) do
+           redirect_stderr(devnull) do
+               entertainMe(1, "UtilsKit"; color=false, pause=0.0)
+           end
+       end === nothing
+true
+```
 """
-function entertainMe(n=10, disp_text="SINDBAD"; c_olor=true)
-    for _x in 1:n
-        displayBanner(disp_text, c_olor)
-        sleep(0.1)
+function entertainMe(n=10, disp_text="UtilsKit"; color::Bool=true, c_olor::Union{Nothing,Bool}=nothing, pause::Real=0.1)
+    if !isnothing(c_olor)
+        color = c_olor
     end
+    Base.depwarn("`entertainMe` is deprecated; use `displayFIGletBanner(disp_text; n=..., color=...)` instead.", :entertainMe)
+    displayFIGletBanner(disp_text; color=color, n=n, pause=pause)
+    return nothing
 end
 
 """
     setLogLevel()
 
 Sets the logging level to `Info`.
+
+# Examples
+
+```jldoctest
+julia> using UtilsKit
+
+julia> setLogLevel();
+```
 """
 function setLogLevel()
     logger = ConsoleLogger(stderr, Logging.Info)
     global_logger(logger)
+    return nothing
 end
 
 """
@@ -42,6 +83,14 @@ Sets the logging level to the specified level.
 
 # Arguments:
 - `log_level`: The desired logging level (`:debug`, `:warn`, `:error`).
+
+# Examples
+
+```jldoctest
+julia> using UtilsKit
+
+julia> setLogLevel(:warn);
+```
 """
 function setLogLevel(log_level::Symbol)
     logger = ConsoleLogger(stderr, Logging.Info)
@@ -53,26 +102,73 @@ function setLogLevel(log_level::Symbol)
         logger = ConsoleLogger(stderr, Logging.Error)
     end
     global_logger(logger)
-end
-
-"""
-    displayBanner(disp_text="SINDBAD")
-
-Displays the given text as a banner using Figlets.
-
-# Arguments:
-- `disp_text`: The text to display (default: "SINDBAD").
-- `c_olor`: Whether to display the text in random colors (default: `false`).
-"""
-function displayBanner(disp_text="SINDBAD", c_olor=true)
-    if c_olor
-        print(Crayon(; foreground=rand(0:255)), "\n")
-    end
-    println("######################################################################################################\n")
-    FIGlet.render(disp_text, rand(figlet_fonts))
-    println("######################################################################################################")
     return nothing
 end
+
+"""
+    displayFIGletBanner(disp_text="UtilsKit"; color=true, n=1, pause=0.1)
+
+Displays the given text as a banner using `FIGlet`.
+
+# Arguments:
+- `disp_text`: The text to display (default: "UtilsKit").
+- `color`: Whether to display the text in random colors (default: `true`).
+- `n`: Number of times to display the banner (default: 1).
+- `pause`: Seconds to sleep between repetitions when `n>1` (default: 0.1).
+
+# Examples
+
+```jldoctest
+julia> using UtilsKit
+
+julia> redirect_stdout(devnull) do
+           displayFIGletBanner("UtilsKit"; color=false, n=1, pause=0.0)
+       end === nothing
+true
+```
+"""
+function displayFIGletBanner(disp_text="UtilsKit"; color::Bool=true, n::Integer=1, pause::Real=0.1)
+    n < 1 && return nothing
+    for i in 1:n
+        if color
+            print(Crayon(; foreground=rand(0:255)), "\n")
+        end
+        println("######################################################################################################\n")
+        FIGlet.render(disp_text, rand(figlet_fonts))
+        println("######################################################################################################")
+        if i < n
+            sleep(pause)
+        end
+    end
+    return nothing
+end
+
+# Backward-compatible: allow `displayFIGletBanner(text, color)` positional calls
+displayFIGletBanner(disp_text, color::Bool; n::Integer=1, pause::Real=0.1) = displayFIGletBanner(disp_text; color=color, n=n, pause=pause)
+
+"""
+    displayBanner(disp_text="UtilsKit"; color=true, n=1, pause=0.1)
+
+Deprecated alias for [`displayFIGletBanner`](@ref).
+
+# Examples
+
+```jldoctest
+julia> using UtilsKit
+
+julia> redirect_stdout(devnull) do
+           displayBanner("UtilsKit"; color=false, n=1, pause=0.0)
+       end === nothing
+true
+```
+"""
+function displayBanner(disp_text="UtilsKit"; color::Bool=true, n::Integer=1, pause::Real=0.1)
+    Base.depwarn("`displayBanner` is deprecated; use `displayFIGletBanner` instead.", :displayBanner)
+    return displayFIGletBanner(disp_text; color=color, n=n, pause=pause)
+end
+
+# Backward-compatible: allow `displayBanner(text, color)` positional calls
+displayBanner(disp_text, color::Bool; n::Integer=1, pause::Real=0.1) = displayBanner(disp_text; color=color, n=n, pause=pause)
 
 
 
@@ -94,8 +190,19 @@ Logs an informational message with optional function, file, and line number cont
 ```julia
 showInfo(myfunc, "myfile.jl", 42, "Computation finished")
 ```
+
+# Examples
+
+```jldoctest
+julia> using UtilsKit
+
+julia> redirect_stdout(devnull) do
+           showInfo(nothing, "file.jl", 1, "hello"; n_f=0, n_m=0)
+       end === nothing
+true
+```
 """
-function showInfo(func, file_name, line_number, info_message; spacer=" ", n_f= 1, n_m=1, display_color=(0, 152, 221))
+function showInfo(func, file_name, line_number, info_message; spacer=" ", n_f=1, n_m=1, display_color=(0, 152, 221))
     func_space = spacer ^ n_f
     info_space = spacer ^ n_m
     file_link = ""
@@ -134,13 +241,22 @@ This will print "This is colored text" with "colored" in the specified color.
 # Notes
 - Only the segments between backticks are colored; other text remains uncolored.
 - The function uses Crayons.jl for coloring, so output is best viewed in compatible terminals.
+
+# Examples
+
+```jldoctest
+julia> using UtilsKit
+
+julia> UtilsKit.ForDisplay.showInfoColored("This is `colored` text", (0, 152, 221)) isa String
+true
+```
 """
-function showInfoColored(s::String, color)
+function showInfoColored(text::String, color)
     # Create a Crayon object with the specified color
     crayon = Crayon(foreground = color)
 
     # Split the string by backticks
-    parts = split(s, "`")
+    parts = split(text, "`")
 
     # Initialize an empty string for the output
     output = ""
@@ -176,6 +292,17 @@ showInfoSeparator(sep_text=" SECTION START ", sep_width=80)
 # Notes
 - The separator line is colored for emphasis.
 - Useful for visually dividing output sections in logs or the console.
+
+# Examples
+
+```jldoctest
+julia> using UtilsKit
+
+julia> redirect_stdout(devnull) do
+           showInfoSeparator(sep_text=" SECTION ", sep_width=40)
+       end === nothing
+true
+```
 """
 function showInfoSeparator(; sep_text="", sep_width=100, display_color=(223,184,21))
     if isempty(sep_text) 
@@ -195,6 +322,14 @@ Modifies the display of stack traces to reduce verbosity for NamedTuples.
 
 # Arguments:
 - `toggle`: Whether to enable or disable the modification (default: `true`).
+
+# Examples
+
+```jldoctest
+julia> using UtilsKit
+
+julia> toggleStackTraceNT(true);
+```
 """
 function toggleStackTraceNT(toggle=true)
     if toggle
@@ -207,3 +342,5 @@ function toggleStackTraceNT(toggle=true)
     end
     return nothing
 end
+
+end # module ForDisplay

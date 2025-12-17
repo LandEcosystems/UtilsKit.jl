@@ -1,11 +1,11 @@
 """
     UtilsKit
 
-A comprehensive utility package providing foundational functions for data manipulation, collections management, display formatting, and type introspection in the SINDBAD framework.
+A comprehensive utility package providing foundational functions for data manipulation, collections management, display formatting, and type introspection.
 
 # Overview
 
-`UtilsKit` serves as a core utility library that provides reusable functions for common programming tasks. It is designed to be type-stable, performant, and consistent across SINDBAD packages.
+`UtilsKit` serves as a core utility library that provides reusable functions for common programming tasks. It is designed to be type-stable and performant.
 
 # Main Features
 
@@ -68,8 +68,8 @@ using UtilsKit
 dict = Dict(:a => 1, :b => 2)
 nt = dictToNamedTuple(dict)
 
-# Display a banner
-displayBanner("SINDBAD")
+# Display a banner (FIGlet)
+displayFIGletBanner("UtilsKit")
 
 # Work with arrays
 arr = [1, 2, 3, 0, -1, 5]
@@ -82,39 +82,70 @@ str = toUpperCaseFirst("hello_world", "Time")  # Returns :TimeHelloWorld
 # Notes
 
 - Functions are designed to be type-stable for performance-critical workflows
-- The package provides foundational utilities used across all SINDBAD packages
+- The package provides foundational utilities intended for reuse across packages
 - Display utilities support both colored and plain text output
 - NamedTuple utilities enable efficient manipulation of structured data types
 
 # See Also
 
 - [`dictToNamedTuple`](@ref) for dictionary conversion
-- [`displayBanner`](@ref) for ASCII art display
+- [`displayFIGletBanner`](@ref) for ASCII art display
 - [`booleanizeArray`](@ref) for array booleanization
 - [`getTypeDocString`](@ref) for type documentation generation
 """
 module UtilsKit
-   using Crayons
-   using DataStructures
-   using Logging
-   using FIGlet
-   using Accessors
-   using TypedTables: Table
-   using InteractiveUtils
-   using Base.Docs: doc as base_doc
-   using Logging
-   using Pkg
-   using TOML
 
+   # Submodules (file-per-area)
+   include("ForNumber.jl")       # UtilsKit.ForNumber
+   include("ForString.jl")       # UtilsKit.ForString
+   include("ForMethods.jl")      # UtilsKit.ForMethods
+   include("ForDocStrings.jl")   # UtilsKit.ForDocStrings
+   include("ForCollections.jl")  # UtilsKit.ForCollections
+   include("ForLongTuples.jl")   # UtilsKit.ForLongTuples
+   include("ForArray.jl")        # UtilsKit.ForArray
+   include("ForDisplay.jl")      # UtilsKit.ForDisplay
+   include("ForPkg.jl")          # UtilsKit.ForPkg
 
-   include("utilsNumber.jl")
-   include("utilsString.jl")
-   include("utilsCollections.jl")
-   include("utilsLongTuple.jl")
-   include("utilsArray.jl")
-   include("utilsDisp.jl")
-   include("utilsDocstrings.jl")
-   include("utilsMethods.jl")
-   include("utilsPkg.jl")
-   
+   # -----------------------------------------------------------------------
+   # Backward-compatible flat API (re-export from submodules)
+   # -----------------------------------------------------------------------
+
+   # Number
+   using .ForNumber: clampZeroOne, cumSum!, getFrac, isInvalid, maxZero, maxOne, minZero, minOne, replaceInvalid
+   export clampZeroOne, cumSum!, getFrac, isInvalid, maxZero, maxOne, minZero, minOne, replaceInvalid
+
+   # String
+   using .ForString: toUpperCaseFirst
+   export toUpperCaseFirst
+
+   # Methods / introspection
+   using .ForMethods: doNothing, getMethodTypes, getDefinitions, getMethodSignatures, methodsOf, printMethodSignatures, purpose, showMethodsOf, valToSymbol
+   export doNothing, getMethodTypes, getDefinitions, getMethodSignatures, methodsOf, printMethodSignatures, purpose, showMethodsOf, valToSymbol
+
+   # Docstrings
+   using .ForDocStrings: loopWriteTypeDocString, writeTypeDocString, getTypeDocString
+   export loopWriteTypeDocString, writeTypeDocString, getTypeDocString
+
+   # Collections / NamedTuple utils
+   using .ForCollections: dictToNamedTuple, dropFields, foldlUnrolled, getCombinedNamedTuple, getNamedTupleFromTable, makeNamedTuple,
+                       mergeNamedTuple, nonUnique, removeEmptyTupleFields, setTupleField, setTupleSubfield, tabularizeList, tcPrint
+   export dictToNamedTuple, dropFields, foldlUnrolled, getCombinedNamedTuple, getNamedTupleFromTable, makeNamedTuple,
+          mergeNamedTuple, nonUnique, removeEmptyTupleFields, setTupleField, setTupleSubfield, tabularizeList, tcPrint
+
+   # Long tuple utilities
+   using .ForLongTuples: LongTuple, foldlLongTuple, getTupleFromLongTuple, makeLongTuple
+   export LongTuple, foldlLongTuple, getTupleFromLongTuple, makeLongTuple
+
+   # Arrays
+   using .ForArray: booleanizeArray, flagLower, flagOffDiag, flagUpper, getArrayView, offDiag, offDiagUpper, offDiagLower, stackArrays
+   export booleanizeArray, flagLower, flagOffDiag, flagUpper, getArrayView, offDiag, offDiagUpper, offDiagLower, stackArrays
+
+   # Display helpers
+   using .ForDisplay: entertainMe, setLogLevel, displayFIGletBanner, displayBanner, showInfo, showInfoSeparator, toggleStackTraceNT
+   export entertainMe, setLogLevel, displayFIGletBanner, displayBanner, showInfo, showInfoSeparator, toggleStackTraceNT
+
+   # Pkg / extensions helpers
+   using .ForPkg: addExtensionToFunction, addExtensionToPackage, addPackage, removeExtensionFromPackage
+   export addExtensionToFunction, addExtensionToPackage, addPackage, removeExtensionFromPackage
+
 end # module UtilsKit

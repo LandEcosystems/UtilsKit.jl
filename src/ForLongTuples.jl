@@ -1,3 +1,11 @@
+"""
+    UtilsKit.ForLongTuples
+
+Utilities for working with large tuples by chunking them into a `LongTuple` wrapper.
+Includes helpers for mapping/folding and converting between `LongTuple` and regular tuples.
+"""
+module ForLongTuples
+
 export LongTuple
 export foldlLongTuple
 export getTupleFromLongTuple
@@ -15,6 +23,17 @@ A data structure that represents a tuple split into smaller chunks for better me
 # Type Parameters
 - `NSPLIT`: The number of elements in each split
 - `T`: The type of the underlying tuple
+
+# Examples
+
+```jldoctest
+julia> using UtilsKit
+
+julia> lt = LongTuple{2}(1, 2, 3);
+
+julia> lastindex(lt)
+3
+```
 """
 struct LongTuple{NSPLIT,T <: Tuple}
     data::T
@@ -78,12 +97,12 @@ end
 
 Base.firstindex(arg::LongTuple{N}) where N = 1
 
-function Base.show(io::IO, arg::LongTuple{N}) where N
+function Base.show(io::IO, lt::LongTuple{N}) where N
     printstyled(io, "LongTuple"; color=:bold)
     printstyled(io, ":"; color=:yellow)
     println(io)
     k_tuple = 1
-    for (i, tup) in enumerate(arg.data)
+    for (i, tup) in enumerate(lt.data)
         for (j, elem) in enumerate(tup)
             if k_tuple<10
                 show_element(io, elem, "  $(k_tuple)  ↓ ")
@@ -111,14 +130,30 @@ function show_element(io::IO, elem, indent)
 end
 
 
-@generated function foldlLongTuple(f, x::LongTuple{NSPL,T}; init) where {T,NSPL}
+"""
+    foldlLongTuple(f, lt::LongTuple; init)
+
+Fold over the elements of a `LongTuple` in a compiler-friendly (unrolled) way.
+
+# Examples
+
+```jldoctest
+julia> using UtilsKit
+
+julia> lt = makeLongTuple((1, 2, 3), 2);
+
+julia> foldlLongTuple((x, acc) -> acc + x, lt; init=0)
+6
+```
+"""
+@generated function foldlLongTuple(f, lt::LongTuple{NSPL,T}; init) where {T,NSPL}
     exes = []
     N = length(T.parameters)
     lastlength = length(last(T.parameters).parameters)
     for i in 1:N
         N2 = i==N ? lastlength : NSPL
         for j in 1:N2
-            push!(exes, :(init = f(x.data[$i][$j], init)))
+            push!(exes, :(init = f(lt.data[$i][$j], init)))
         end
     end
     return Expr(:block, exes...)
@@ -135,16 +170,25 @@ Convert a LongTuple to a regular tuple.
 
 # Returns
 - A regular tuple containing all elements from the LongTuple
+
+# Examples
+
+```jldoctest
+julia> using UtilsKit
+
+julia> lt = makeLongTuple((1, 2, 3), 2);
+
+julia> getTupleFromLongTuple(lt)
+(1, 2, 3)
+```
 """
-function getTupleFromLongTuple(long_tuple)
+function getTupleFromLongTuple(lt::LongTuple)
     emp_vec = []
-    foreach(long_tuple) do lt
-        push!(emp_vec, lt)
+    foreach(lt) do x
+        push!(emp_vec, x)
     end
     return Tuple(emp_vec)
 end
-
-
 
 """
     makeLongTuple(normal_tuple; longtuple_size=5)
@@ -157,10 +201,21 @@ Create a LongTuple from a normal tuple.
 
 # Returns
 - A LongTuple containing the elements of the input tuple
+
+# Examples
+
+```jldoctest
+julia> using UtilsKit
+
+julia> lt = makeLongTuple((1, 2, 3), 2);
+
+julia> lt[3]
+3
+```
 """
-function makeLongTuple(normal_tuple::Tuple, longtuple_size=5)
-    longtuple_size = min(length(normal_tuple), longtuple_size)
-    LongTuple{longtuple_size}(normal_tuple...)
+function makeLongTuple(tup::Tuple, longtuple_size=5)
+    longtuple_size = min(length(tup), longtuple_size)
+    LongTuple{longtuple_size}(tup...)
 end
 
 
@@ -171,6 +226,8 @@ end
 - `normal_tuple`: a normal tuple
 - `longtuple_size`: size to break down the tuple into
 """
-function makeLongTuple(long_tuple::LongTuple, longtuple_size=5)
-    long_tuple
+function makeLongTuple(lt::LongTuple, longtuple_size=5)
+    lt
 end
+
+end # module ForLongTuples

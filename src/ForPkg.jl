@@ -1,10 +1,24 @@
+"""
+    UtilsKit.ForPkg
+
+Package-management helpers (Julia `Pkg`) and convenience utilities for creating/removing
+package extensions (`ext/` scaffolding) and weakdep mappings in `Project.toml`.
+
+Notes:
+- Uses `import Pkg as StdPkg` internally to avoid the `UtilsKit.ForPkg` name conflict.
+"""
+module ForPkg
+
+import Pkg as StdPkg
+import TOML
+using Logging
+
+using ..ForMethods: getMethodSignatures
+
 export addExtensionToFunction
 export addExtensionToPackage
 export addPackage
 export removeExtensionFromPackage
-
-using Pkg
-using Logging
 
 """
     ensurePackageInRegistry(pkgname::String) -> Nothing
@@ -16,7 +30,7 @@ name is misspelled or not registered.
 """
 function ensurePackageInRegistry(pkgname::String)
     regs = try
-        Pkg.Registry.reachable_registries()
+        StdPkg.Registry.reachable_registries()
     catch err
         throw(error("Could not query registries to validate package name $(repr(pkgname)). Error: $(err)"))
     end
@@ -53,7 +67,7 @@ and ensure `Project.toml` contains the needed `[weakdeps]` and `[extensions]` ma
 
 The include file name is:
 - `<InnerModule><Cap(FunctionName)>.jl` when the function lives under a single inner module (e.g. `SimulationSpinup.jl`)
-- otherwise `<RootPackage><Cap(FunctionName)>.jl` (e.g. `SindbadSpinup.jl`)
+- otherwise `<RootPackage><Cap(FunctionName)>.jl` (e.g. `MyPkgSpinup.jl`)
 
 The generated include file contains:
 - a short header docstring,
@@ -70,15 +84,26 @@ This helper is conservative:
 ```julia
 include(joinpath(@__DIR__, "tmp_test_extension.jl"))
 using .TmpTestExtension
-using Sindbad
 
-addExtensionToFunction(Sindbad.Simulation.spinup, "NLsolve"; extension_location=:Folder)
+addExtensionToFunction(MyPkg.MyInnerModule.someFunction, "NLsolve"; extension_location=:Folder)
+```
+
+# Examples
+
+The full operation modifies `Project.toml` and creates files under `ext/`, so it is not run as a doctest here.
+This snippet is a **runnable** smoke-check that the function is available:
+
+```jldoctest
+julia> using UtilsKit
+
+julia> UtilsKit.addExtensionToFunction isa Function
+true
 ```
 """
-function addExtensionToFunction(function_to_extend::Function, external_package::String; extension_location::Symbol = :Folder)
+function addExtensionToFunction(target_function::Function, external_package::String; extension_location::Symbol = :Folder)
     logAction("addExtensionToFunction", "Starting (external_package=$(external_package), extension_location=$(extension_location))")
 
-    local_module = parentmodule(function_to_extend)
+    local_module = parentmodule(target_function)
     root_pkg = Base.moduleroot(local_module)
     root_pkg_name = String(nameof(root_pkg))
     ext_module_name = "$(root_pkg_name)$(external_package)Ext"
@@ -98,12 +123,12 @@ function addExtensionToFunction(function_to_extend::Function, external_package::
 
     # Inner module inference (single level)
     root_full = Base.fullname(root_pkg)
-    fn_mod = parentmodule(function_to_extend)
+    fn_mod = parentmodule(target_function)
     fn_full = Base.fullname(fn_mod)
     rel = (length(fn_full) > length(root_full) && fn_full[1:length(root_full)] == root_full) ? fn_full[length(root_full)+1:end] : ()
     inner = length(rel) == 1 ? String(rel[1]) : nothing
 
-    fn_name = String(nameof(function_to_extend))
+    fn_name = String(nameof(target_function))
     cap_name = uppercasefirst(fn_name)
     codefile = isnothing(inner) ? "$(root_pkg_name)$(cap_name).jl" : "$(inner)$(cap_name).jl"
 
@@ -113,9 +138,9 @@ function addExtensionToFunction(function_to_extend::Function, external_package::
     code_exists = isfile(code_path)
 
     # Method signature strings (dedup default-arg expansions + repo-relative paths)
-    template_methods = getMethodSignatures(function_to_extend; path=:relative_root)
+    template_methods = getMethodSignatures(target_function; path=:relative_root)
     # Arg name + last-arg type inference (best-effort)
-    template_arg_names, template_last_arg_type = _inferCommonArgs(function_to_extend)
+    template_arg_names, template_last_arg_type = _inferCommonArgs(target_function)
 
     if entry_exists && code_exists
         error("Both extension entry and include exist.\nEntry: $(entry_file)\nInclude: $(code_path)\nDelete the include file to regenerate it.")
@@ -162,11 +187,20 @@ Register a Julia extension for `local_package`:
 - update `Project.toml` (`[weakdeps]` + `[extensions]`)
 
 This does **not** create any include file scaffold; use [`addExtensionToFunction`](@ref) if you want that.
+
+# Examples
+
+```jldoctest
+julia> using UtilsKit
+
+julia> UtilsKit.addExtensionToPackage isa Function
+true
+```
 """
-function addExtensionToPackage(local_package::Module, external_package::String; extension_location::Symbol = :File)
+function addExtensionToPackage(local_module::Module, external_package::String; extension_location::Symbol = :File)
     logAction("addExtensionToPackage", "Starting (external_package=$(external_package), extension_location=$(extension_location))")
 
-    root_pkg = Base.moduleroot(local_package)
+    root_pkg = Base.moduleroot(local_module)
     root_pkg_name = String(nameof(root_pkg))
     ext_module_name = "$(root_pkg_name)$(external_package)Ext"
 
@@ -185,7 +219,7 @@ function addExtensionToPackage(local_package::Module, external_package::String; 
 
     # Optional single inner module name for import statement
     root_full = Base.fullname(root_pkg)
-    local_full = Base.fullname(local_package)
+    local_full = Base.fullname(local_module)
     rel = (length(local_full) > length(root_full) && local_full[1:length(root_full)] == root_full) ? local_full[length(root_full)+1:end] : ()
     inner = length(rel) == 1 ? String(rel[1]) : nothing
 
@@ -216,33 +250,42 @@ Adds a specified Julia package to the environment of a given module or project.
 
 # Notes:
 - This function assumes that the `where_to_add` module or project is structured with a standard Julia project layout.
-- It requires the `Pkg` module for package management, which is re-exported from core Sindbad.
+- It requires the `Pkg` module for package management.
 
 # Example:
 ```julia
 addPackage(MyModule, "DataFrames")
 ```
+
+# Examples
+
+```jldoctest
+julia> using UtilsKit
+
+julia> UtilsKit.addPackage isa Function
+true
+```
 """
-function addPackage(where_to_add, the_package_to_add)
+function addPackage(target, package_name)
 
     from_where = dirname(Base.active_project())
-    dir_where_to_add = joinpath(dirname(pathof(where_to_add)), "../")
-    cd(dir_where_to_add)
-    Pkg.activate(dir_where_to_add)
-    is_installed = any(dep.name == the_package_to_add for dep in values(Pkg.dependencies()))
+    dir_target = joinpath(dirname(pathof(target)), "../")
+    cd(dir_target)
+    StdPkg.activate(dir_target)
+    is_installed = any(dep.name == package_name for dep in values(StdPkg.dependencies()))
 
     if is_installed
-        @info "$the_package_to_add is already installed in $where_to_add. Nothing to do. Return to base environment at $from_where".
+        @info "$package_name is already installed in $target. Nothing to do. Return to base environment at $from_where".
     else
 
-        Pkg.add(the_package_to_add)
+        StdPkg.add(package_name)
         rm("Manifest.toml")
-        Pkg.instantiate()
-        @info "Added $(the_package_to_add) to $(where_to_add). Add the following to the imports in $(pathof(where_to_add)) with\n\nusing $(the_package_to_add)\n\n. You may need to restart the REPL/environment at $(from_where)."
+        StdPkg.instantiate()
+        @info "Added $(package_name) to $(target). Add the following to the imports in $(pathof(target)) with\n\nusing $(package_name)\n\n. You may need to restart the REPL/environment at $(from_where)."
     end
     cd(from_where)
-    Pkg.activate(from_where)
-    Pkg.resolve()
+    StdPkg.activate(from_where)
+    StdPkg.resolve()
 end
 
 
@@ -467,16 +510,16 @@ function ensureExtensionMapping(package_root::String, external_package::String, 
     end
 
     try
-        Pkg.activate(package_root)
+        StdPkg.activate(package_root)
         if !in_weakdeps || in_deps
-            Pkg.add(external_package; target=:weakdeps)
+            StdPkg.add(external_package; target=:weakdeps)
             push!(actions, "added/ensured \"$external_package\" in [weakdeps] via Pkg")
         end
     finally
         if !isnothing(prev_project)
             try
                 # `Base.active_project()` returns a Project.toml path; activating it directly is the most robust.
-                Pkg.activate(prev_project)
+                StdPkg.activate(prev_project)
             catch
             end
         end
@@ -544,11 +587,20 @@ end
 Remove extension registration from `Project.toml` and attempt to remove `external_package` from the environment
 (`Pkg.rm` + `Pkg.resolve`) so the `Manifest.toml` is updated. Prints a shell-mode command to delete the
 entry file or folder under `ext/` (auto-detected).
+
+# Examples
+
+```jldoctest
+julia> using UtilsKit
+
+julia> UtilsKit.removeExtensionFromPackage isa Function
+true
+```
 """
-function removeExtensionFromPackage(local_package::Module, external_package::String)
+function removeExtensionFromPackage(local_module::Module, external_package::String)
     logAction("removeExtensionFromPackage", "Starting (external_package=$(external_package))")
 
-    root_pkg = Base.moduleroot(local_package)
+    root_pkg = Base.moduleroot(local_module)
     root_pkg_name = String(nameof(root_pkg))
     ext_module_name = "$(root_pkg_name)$(external_package)Ext"
 
@@ -591,14 +643,14 @@ function removeExtensionFromPackage(local_package::Module, external_package::Str
     logAction("removeExtensionFromPackage", "Wrote: $(project_file)")
 
     try
-        Pkg.activate(package_root)
+        StdPkg.activate(package_root)
         try
-            Pkg.rm(external_package)
+            StdPkg.rm(external_package)
             logAction("removeExtensionFromPackage", "Ran Pkg.rm(\"$(external_package)\") (Manifest updated).")
         catch
             warnAction("removeExtensionFromPackage", "Pkg.rm(\"$(external_package)\") failed (maybe not installed).")
         end
-        try Pkg.resolve() catch end
+        try StdPkg.resolve() catch end
     catch
         warnAction("removeExtensionFromPackage", "Pkg environment update failed; Manifest may be unchanged.")
     end
@@ -673,3 +725,5 @@ function warnAction(caller::AbstractString, message::AbstractString)
     @warn "[$(caller)] $(message)"
     return nothing
 end
+
+end # module ForPkg
