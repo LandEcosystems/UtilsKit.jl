@@ -23,7 +23,7 @@ returns max(min(num, 1), 0)
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> clamp_zero_one(2.0)
 1.0
@@ -44,7 +44,7 @@ fill out the output vector with the cumulative sum of elements from input vector
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> out = zeros(Int, 3);
 
@@ -72,7 +72,7 @@ return either a ratio or numerator depending on whether denomitor is a zero
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> safe_divide(1.0, 2.0)
 0.5
@@ -105,7 +105,7 @@ Checks if a number is invalid (e.g., `nothing`, `missing`, `NaN`, or `Inf`).
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> is_invalid_number(NaN)
 true
@@ -128,7 +128,7 @@ returns max(num, 0)
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> at_least_zero(-1.0)
 0.0
@@ -147,7 +147,7 @@ returns max(num, 1)
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> at_least_one(0.5)
 1.0
@@ -166,7 +166,7 @@ returns min(num, 0)
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> at_most_zero(1.0)
 0.0
@@ -185,7 +185,7 @@ returns min(num, 1)
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> at_most_one(2.0)
 1.0
@@ -211,7 +211,7 @@ The input number if valid, otherwise the fill value.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> replace_invalid_number(NaN, 0.0)
 0.0
