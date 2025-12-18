@@ -1,5 +1,5 @@
 """
-    UtilsKit.ForDisplay
+    OmniTools.ForDisplay
 
 Display / logging utilities:
 - banners (FIGlet) and lightweight terminal UI helpers
@@ -28,7 +28,7 @@ Sets the logging level to `Info`.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> set_log_level();
 ```
@@ -50,7 +50,7 @@ Sets the logging level to the specified level.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> set_log_level(:warn);
 ```
@@ -69,12 +69,12 @@ function set_log_level(log_level::Symbol)
 end
 
 """
-    print_figlet_banner(disp_text="UtilsKit"; color=true, n=1, pause=0.1)
+    print_figlet_banner(disp_text="OmniTools"; color=true, n=1, pause=0.1)
 
 Displays the given text as a banner using `FIGlet`.
 
 # Arguments:
-- `disp_text`: The text to display (default: "UtilsKit").
+- `disp_text`: The text to display (default: "OmniTools").
 - `color`: Whether to display the text in random colors (default: `true`).
 - `n`: Number of times to display the banner (default: 1).
 - `pause`: Seconds to sleep between repetitions when `n>1` (default: 0.1).
@@ -82,15 +82,15 @@ Displays the given text as a banner using `FIGlet`.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> redirect_stdout(devnull) do
-           print_figlet_banner("UtilsKit"; color=false, n=1, pause=0.0)
+           print_figlet_banner("OmniTools"; color=false, n=1, pause=0.0)
        end === nothing
 true
 ```
 """
-function print_figlet_banner(disp_text="UtilsKit"; color::Bool=true, n::Integer=1, pause::Real=0.1)
+function print_figlet_banner(disp_text="OmniTools"; color::Bool=true, n::Integer=1, pause::Real=0.1)
     n < 1 && return nothing
     for i in 1:n
         if color
@@ -133,7 +133,7 @@ print_info(myfunc, "myfile.jl", 42, "Computation finished")
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> redirect_stdout(devnull) do
            print_info(nothing, "file.jl", 1, "hello"; n_f=0, n_m=0)
@@ -184,9 +184,9 @@ This will print "This is colored text" with "colored" in the specified color.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
-julia> UtilsKit.ForDisplay._colorizeBacktickedSegments("This is `colored` text", (0, 152, 221)) isa String
+julia> OmniTools.ForDisplay._colorizeBacktickedSegments("This is `colored` text", (0, 152, 221)) isa String
 true
 ```
 """
@@ -235,7 +235,7 @@ print_info_separator(sep_text=" SECTION START ", sep_width=80)
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> redirect_stdout(devnull) do
            print_info_separator(sep_text=" SECTION ", sep_width=40)
@@ -265,7 +265,7 @@ Modifies the display of stack traces to reduce verbosity for NamedTuples.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> toggle_type_abbrev_in_stacktrace(true);
 ```

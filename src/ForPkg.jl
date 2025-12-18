@@ -1,11 +1,11 @@
 """
-    UtilsKit.ForPkg
+    OmniTools.ForPkg
 
 Package-management helpers (Julia `Pkg`) and convenience utilities for creating/removing
 package extensions (`ext/` scaffolding) and weakdep mappings in `Project.toml`.
 
 Notes:
-- Uses `import Pkg as StdPkg` internally to avoid the `UtilsKit.ForPkg` name conflict.
+- Uses `import Pkg as StdPkg` internally to avoid the `OmniTools.ForPkg` name conflict.
 """
 module ForPkg
 
@@ -94,9 +94,9 @@ The full operation modifies `Project.toml` and creates files under `ext/`, so it
 This snippet is a **runnable** smoke-check that the function is available:
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
-julia> UtilsKit.add_extension_to_function isa Function
+julia> OmniTools.add_extension_to_function isa Function
 true
 ```
 """
@@ -191,9 +191,9 @@ This does **not** create any include file scaffold; use [`add_extension_to_funct
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
-julia> UtilsKit.add_extension_to_package isa Function
+julia> OmniTools.add_extension_to_package isa Function
 true
 ```
 """
@@ -260,9 +260,9 @@ add_package(MyModule, "DataFrames")
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
-julia> UtilsKit.add_package isa Function
+julia> OmniTools.add_package isa Function
 true
 ```
 """
@@ -591,9 +591,9 @@ entry file or folder under `ext/` (auto-detected).
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
-julia> UtilsKit.remove_extension_from_package isa Function
+julia> OmniTools.remove_extension_from_package isa Function
 true
 ```
 """

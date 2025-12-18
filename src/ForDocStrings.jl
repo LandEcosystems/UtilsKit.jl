@@ -1,5 +1,5 @@
 """
-    UtilsKit.ForDocStrings
+    OmniTools.ForDocStrings
 
 Docstring helpers:
 - generate structured docstrings for types based on `purpose` and type hierarchies
@@ -32,7 +32,7 @@ This function generates a formatted docstring for a type, including its purpose 
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> s = get_type_docstring(Int);
 
@@ -75,7 +75,7 @@ This function writes a docstring for a type to a file.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> io = IOBuffer();
 
@@ -117,7 +117,7 @@ This function writes a docstring for a type to a file.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> io = IOBuffer();
 

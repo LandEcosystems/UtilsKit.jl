@@ -1,5 +1,5 @@
 """
-    UtilsKit.ForCollections
+    OmniTools.ForCollections
 
 Collections / data-structure utilities:
 - Dictionary ↔ NamedTuple helpers
@@ -71,7 +71,7 @@ Convert a nested dictionary to a NamedTuple.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> dict_to_namedtuple(Dict(:a => 1, :b => 2))
 (a = 1, b = 2)
@@ -107,7 +107,7 @@ for compiler.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> foldl_tuple_unrolled(+, (1, 2, 3); init=0)
 6
@@ -134,7 +134,7 @@ Remove specified fields from a NamedTuple.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> drop_namedtuple_fields((a=1, b=2, c=3), (:b,))
 (a = 1, c = 3)
@@ -160,7 +160,7 @@ Combine property values from base and priority NamedTuples.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> merge_namedtuple_prefer_nonempty((a=[1], b=[2]), (b=[99],))
 (a = [1], b = [99])
@@ -206,7 +206,7 @@ Convert a table to a NamedTuple.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> tbl = list_to_table((:a, :b));
 
@@ -270,7 +270,7 @@ Create a NamedTuple from input data and names.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> namedtuple_from_names_values([1, 2], [:a, :b])
 (a = 1, b = 2)
@@ -300,7 +300,7 @@ taking precedence over default options.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> merge_namedtuple((a=1, b=2), (b=99,))
 (a = 1, b = 99)
@@ -386,7 +386,7 @@ A vector of duplicate elements.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> duplicates([1, 2, 2, 3, 3, 3])
 2-element Vector{Int64}:
@@ -424,7 +424,7 @@ Remove all empty fields from a NamedTuple.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> drop_empty_namedtuple_fields((a=(;), b=(x=1,)))
 (b = (x = 1,),)
@@ -453,7 +453,7 @@ Set a subfield of a NamedTuple.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> set_namedtuple_subfield((a=(;),), :a, (:x, 1))
 (a = (x = 1,),)
@@ -482,7 +482,7 @@ Set a field in a NamedTuple.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> set_namedtuple_field((a=1,), (:b, 2))
 (a = 1, b = 2)
@@ -506,7 +506,7 @@ A table representation of the input list.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> tbl = list_to_table((:a, :b));
 
@@ -538,7 +538,7 @@ Print a formatted representation of a data structure with type annotations and c
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> redirect_stdout(devnull) do
            tc_print((a=1, b=(c=2,)); _color=false)

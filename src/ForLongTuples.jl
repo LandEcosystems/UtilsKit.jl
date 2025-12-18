@@ -1,5 +1,5 @@
 """
-    UtilsKit.ForLongTuples
+    OmniTools.ForLongTuples
 
 Utilities for working with large tuples by chunking them into a `LongTuple` wrapper.
 Includes helpers for mapping/folding and converting between `LongTuple` and regular tuples.
@@ -27,7 +27,7 @@ A data structure that represents a tuple split into smaller chunks for better me
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> lt = LongTuple{2}(1, 2, 3);
 
@@ -138,7 +138,7 @@ Fold over the elements of a `LongTuple` in a compiler-friendly (unrolled) way.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> lt = to_longtuple((1, 2, 3), 2);
 
@@ -174,7 +174,7 @@ Convert a LongTuple to a regular tuple.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> lt = to_longtuple((1, 2, 3), 2);
 
@@ -205,7 +205,7 @@ Create a LongTuple from a normal tuple.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> lt = to_longtuple((1, 2, 3), 2);
 

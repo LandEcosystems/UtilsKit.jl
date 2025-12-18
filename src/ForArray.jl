@@ -1,5 +1,5 @@
 """
-    UtilsKit.ForArray
+    OmniTools.ForArray
 
 Array-focused utilities:
 - booleanization and masking helpers
@@ -30,7 +30,7 @@ A boolean array with the same dimensions as `_array`.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> positive_mask([1.0, 0.0, -1.0])
 3-element BitVector:
@@ -56,7 +56,7 @@ returns a matrix of same shape as input with 1 for all non diagonal elements
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> off_diagonal_mask([1 2; 3 4])
 2×2 Matrix{Float64}:
@@ -83,7 +83,7 @@ returns a matrix of same shape as input with 1 for all below diagonal elements a
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> lower_triangle_mask([1 2; 3 4])
 2×2 Matrix{Float64}:
@@ -109,7 +109,7 @@ returns a matrix of same shape as input with 1 for all above diagonal elements a
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> upper_triangle_mask([1 2; 3 4])
 2×2 Matrix{Float64}:
@@ -153,7 +153,7 @@ Creates a view of the input array `_dat` based on the provided indices tuple `in
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> A = Matrix(reshape(1:9, 3, 3))
 3×3 Matrix{Int64}:
@@ -244,7 +244,7 @@ returns a vector comprising of off diagonal elements of a matrix
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> off_diagonal_elements([1 2; 3 4])
 2-element Vector{Int64}:
@@ -264,7 +264,7 @@ returns a vector comprising of below diagonal elements of a matrix
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> lower_off_diagonal_elements([1 2; 3 4])
 1-element Vector{Int64}:
@@ -283,7 +283,7 @@ returns a vector comprising of above diagonal elements of a matrix
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> upper_off_diagonal_elements([1 2; 3 4])
 1-element Vector{Int64}:
@@ -316,7 +316,7 @@ Stacks a collection of arrays along the first dimension.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> stack_as_columns(([1, 2], [3, 4]))
 2×2 Matrix{Int64}:

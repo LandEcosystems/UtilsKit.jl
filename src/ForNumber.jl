@@ -1,5 +1,5 @@
 """
-    UtilsKit.ForNumber
+    OmniTools.ForNumber
 
 Number utilities:
 - clamping and min/max helpers

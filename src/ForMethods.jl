@@ -1,5 +1,5 @@
 """
-    UtilsKit.ForMethods
+    OmniTools.ForMethods
 
 Method/type introspection helpers:
 - list method signatures with file/line info
@@ -35,7 +35,7 @@ The same input data.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> do_nothing(1)
 1
@@ -65,7 +65,7 @@ Default-arg wrapper methods are collapsed: for each unique `(file,line,module)` 
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> sigs = get_method_signatures(+);
 
@@ -178,7 +178,7 @@ println(types) # Output: [Int64, Float64]
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> get_method_types(+) isa AbstractVector
 true
@@ -249,7 +249,7 @@ If no subtypes exist, it will show " - `None`".
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> occursin("Available", methods_of(Int))
 true
@@ -305,7 +305,7 @@ Print method signatures as a bulleted list.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> redirect_stdout(devnull) do
            print_method_signatures(+)
@@ -372,7 +372,7 @@ This function is a convenience wrapper around `methods_of` that automatically pr
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> redirect_stdout(devnull) do
            show_methods_of(Int)
@@ -407,9 +407,9 @@ defined_types = get_definitions(MyModule, Type)
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
-julia> get_definitions(UtilsKit, Function; internal_only=false) isa Vector
+julia> get_definitions(OmniTools, Function; internal_only=false) isa Vector
 true
 ```
 """
@@ -460,7 +460,7 @@ println(purpose(BayesOptKMaternARD5))  # Output: "Bayesian Optimization using Ma
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> occursin("Undefined purpose", purpose(Int))
 true
@@ -486,7 +486,7 @@ A `Symbol` representing the type of the input value.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> val_to_symbol(Val(:x))
 :x

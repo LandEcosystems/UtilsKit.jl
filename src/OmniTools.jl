@@ -1,11 +1,11 @@
 """
-    UtilsKit
+    OmniTools
 
 A comprehensive utility package providing foundational functions for data manipulation, collections management, display formatting, and type introspection.
 
 # Overview
 
-`UtilsKit` serves as a core utility library that provides reusable functions for common programming tasks. It is designed to be type-stable and performant.
+`OmniTools` serves as a core utility library that provides reusable functions for common programming tasks. It is designed to be type-stable and performant.
 
 # Main Features
 
@@ -62,14 +62,14 @@ A comprehensive utility package providing foundational functions for data manipu
 # Usage Example
 
 ```julia
-using UtilsKit
+using OmniTools
 
 # Convert dictionary to NamedTuple
 dict = Dict(:a => 1, :b => 2)
 nt = dict_to_namedtuple(dict)
 
 # Display a banner (FIGlet)
-print_figlet_banner("UtilsKit")
+print_figlet_banner("OmniTools")
 
 # Work with arrays
 arr = [1, 2, 3, 0, -1, 5]
@@ -93,18 +93,18 @@ str = to_uppercase_first("hello_world", "Time")  # Returns :TimeHelloWorld
 - [`positive_mask`](@ref) for array masking
 - [`get_type_docstring`](@ref) for type documentation generation
 """
-module UtilsKit
+module OmniTools
 
    # Submodules (file-per-area)
-   include("ForNumber.jl")       # UtilsKit.ForNumber
-   include("ForString.jl")       # UtilsKit.ForString
-   include("ForMethods.jl")      # UtilsKit.ForMethods
-   include("ForDocStrings.jl")   # UtilsKit.ForDocStrings
-   include("ForCollections.jl")  # UtilsKit.ForCollections
-   include("ForLongTuples.jl")   # UtilsKit.ForLongTuples
-   include("ForArray.jl")        # UtilsKit.ForArray
-   include("ForDisplay.jl")      # UtilsKit.ForDisplay
-   include("ForPkg.jl")          # UtilsKit.ForPkg
+   include("ForNumber.jl")       # OmniTools.ForNumber
+   include("ForString.jl")       # OmniTools.ForString
+   include("ForMethods.jl")      # OmniTools.ForMethods
+   include("ForDocStrings.jl")   # OmniTools.ForDocStrings
+   include("ForCollections.jl")  # OmniTools.ForCollections
+   include("ForLongTuples.jl")   # OmniTools.ForLongTuples
+   include("ForArray.jl")        # OmniTools.ForArray
+   include("ForDisplay.jl")      # OmniTools.ForDisplay
+   include("ForPkg.jl")          # OmniTools.ForPkg
 
    # -----------------------------------------------------------------------
    # Flat API (re-export from submodules)
@@ -160,4 +160,4 @@ module UtilsKit
    using .ForPkg: add_extension_to_function, add_extension_to_package, add_package, remove_extension_from_package
    export add_extension_to_function, add_extension_to_package, add_package, remove_extension_from_package
 
-end # module UtilsKit
+end # module OmniTools

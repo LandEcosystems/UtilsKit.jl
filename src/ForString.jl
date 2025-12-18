@@ -1,5 +1,5 @@
 """
-    UtilsKit.ForString
+    OmniTools.ForString
 
 String utilities (kept in a separate submodule to avoid Base name conflicts).
 Currently includes helpers for converting snake_case strings to `Symbol`s.
@@ -24,7 +24,7 @@ A `Symbol` with the transformed string.
 # Examples
 
 ```jldoctest
-julia> using UtilsKit
+julia> using OmniTools
 
 julia> to_uppercase_first("hello_world", "Time")
 :TimeHelloWorld
