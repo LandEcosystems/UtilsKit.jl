@@ -1,32 +1,25 @@
+using DocumenterVitepress
 using Documenter
 using OmniTools
 
-makedocs(
-    modules = [OmniTools],
+makedocs(;
     sitename = "OmniTools.jl",
-    format = Documenter.HTML(prettyurls = get(ENV, "CI", "") == "true"),
-    pages = [
-        "Home" => "index.md",
-        "API" => [
-            "Overview" => "api.md",
-            "OmniTools (flat)" => "api/OmniTools.md",
-            "ForArray" => "api/ForArray.md",
-            "ForCollections" => "api/ForCollections.md",
-            "ForDisplay" => "api/ForDisplay.md",
-            "ForDocStrings" => "api/ForDocStrings.md",
-            "ForLongTuples" => "api/ForLongTuples.md",
-            "ForMethods" => "api/ForMethods.md",
-            "ForNumber" => "api/ForNumber.md",
-            "ForPkg" => "api/ForPkg.md",
-            "ForString" => "api/ForString.md",
-        ],
-    ],
+    authors = "OmniTools.jl Contributors",
+    clean = true,
+    format = DocumenterVitepress.MarkdownVitepress(
+        repo = "github.com/LandEcosystems/OmniTools.jl",
+    ),
+    remotes = nothing,
+    draft = false,
+    warnonly = true,
+    source = "src",
+    build = "build",
 )
 
-if get(ENV, "GITHUB_ACTIONS", "") == "true"
-    deploydocs(
-        repo = "github.com/LandEcosystems/OmniTools.jl",
-        devbranch = "main",
-        push_preview = true,
-    )
-end
+DocumenterVitepress.deploydocs(;
+    repo = "github.com/LandEcosystems/OmniTools.jl",
+    target = joinpath(@__DIR__, "build"),
+    branch = "gh-pages",
+    devbranch = "main",
+    push_preview = true
+)
