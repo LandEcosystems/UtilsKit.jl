@@ -6,11 +6,11 @@ Currently includes helpers for converting snake_case strings to `Symbol`s.
 """
 module ForString
 
-export toUpperCaseFirst
+export to_uppercase_first
 
 
 """
-    toUpperCaseFirst(s::AbstractString, prefix="")
+    to_uppercase_first(s::AbstractString, prefix="")
 
 Converts the first letter of each word in a string to uppercase, removes underscores, and adds a prefix.
 
@@ -26,11 +26,11 @@ A `Symbol` with the transformed string.
 ```jldoctest
 julia> using UtilsKit
 
-julia> toUpperCaseFirst("hello_world", "Time")
+julia> to_uppercase_first("hello_world", "Time")
 :TimeHelloWorld
 ```
 """
-function toUpperCaseFirst(str::AbstractString, prefix::AbstractString="")
+function to_uppercase_first(str::AbstractString, prefix::AbstractString="")
     str_s = Base.String(str)
     prefix_s = Base.String(prefix)
     return Symbol(prefix_s * join(uppercasefirst.(split(str_s, "_"))))

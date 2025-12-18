@@ -10,19 +10,19 @@ module ForMethods
 
 using InteractiveUtils: subtypes
 
-export doNothing
-export getMethodTypes
-export getDefinitions
-export getMethodSignatures
-export methodsOf
-export printMethodSignatures
+export do_nothing
+export get_method_types
+export get_definitions
+export get_method_signatures
+export methods_of
+export print_method_signatures
 export purpose
-export showMethodsOf
-export valToSymbol
+export show_methods_of
+export val_to_symbol
 
 
 """
-    doNothing(dat)
+    do_nothing(dat)
 
 Returns the input as is, without any modifications.
 
@@ -37,22 +37,22 @@ The same input data.
 ```jldoctest
 julia> using UtilsKit
 
-julia> doNothing(1)
+julia> do_nothing(1)
 1
 ```
 """
-function doNothing(x)
+function do_nothing(x)
     return x
 end
 
 
 
 # ---------------------------------------------------------------------------
-# getMethodSignatures / printMethodSignatures
+# get_method_signatures / print_method_signatures
 # ---------------------------------------------------------------------------
 
 """
-    getMethodSignatures(f::Function; path::Symbol = :relative_pwd) -> Vector{String}
+    get_method_signatures(f::Function; path::Symbol = :relative_pwd) -> Vector{String}
 
 Return method signature strings for `f`, including file/line information.
 `path` controls how file paths are shown:
@@ -67,13 +67,13 @@ Default-arg wrapper methods are collapsed: for each unique `(file,line,module)` 
 ```jldoctest
 julia> using UtilsKit
 
-julia> sigs = getMethodSignatures(+);
+julia> sigs = get_method_signatures(+);
 
 julia> sigs isa Vector{String}
 true
 ```
 """
-function getMethodSignatures(f::Function; path::Symbol = :relative_pwd)
+function get_method_signatures(f::Function; path::Symbol = :relative_pwd)
     path in (:relative_pwd, :relative_root, :absolute) ||
         error("Invalid `path=$(path)`. Expected :relative_pwd, :relative_root, or :absolute.")
     root_pkg = Base.moduleroot(parentmodule(f))
@@ -156,7 +156,7 @@ end
 
 
 """
-    getMethodTypes(fn)
+    get_method_types(fn)
 
 Retrieve the types of the arguments for all methods of a given function.
 
@@ -171,7 +171,7 @@ Retrieve the types of the arguments for all methods of a given function.
 function example_function(x::Int, y::String) end
 function example_function(x::Float64, y::Bool) end
 
-types = getMethodTypes(example_function)
+types = get_method_types(example_function)
 println(types) # Output: [Int64, Float64]
 ```
 
@@ -180,11 +180,11 @@ println(types) # Output: [Int64, Float64]
 ```jldoctest
 julia> using UtilsKit
 
-julia> getMethodTypes(+) isa AbstractVector
+julia> get_method_types(+) isa AbstractVector
 true
 ```
 """
-function getMethodTypes(f)
+function get_method_types(f)
     # Get the method table for the function
     mt = methods(f)
     # Extract the types of the first method
@@ -193,8 +193,8 @@ function getMethodTypes(f)
 end
 
 """
-    methodsOf(T::Type; ds="", is_subtype=false, bullet=" - ")
-    methodsOf(M::Module; the_type=Type, internal_only=true)
+    methods_of(T::Type; ds="", is_subtype=false, bullet=" - ")
+    methods_of(M::Module; the_type=Type, internal_only=true)
 
 Display subtypes and their purposes for a type or module in a formatted way.
 
@@ -216,19 +216,19 @@ This function provides a hierarchical display of subtypes and their purposes for
 # Examples
 ```julia
 # Display subtypes of a type
-methodsOf(LandEcosystem)
+methods_of(LandEcosystem)
 
 # Display with custom formatting
-methodsOf(LandEcosystem; ds=", ", bullet=" * ")
+methods_of(LandEcosystem; ds=", ", bullet=" * ")
 
 # Display including nested subtypes
-methodsOf(LandEcosystem; is_subtype=true)
+methods_of(LandEcosystem; is_subtype=true)
 
 # Display types in a module
-methodsOf(MyModule)
+methods_of(MyModule)
 
 # Display specific types in a module
-methodsOf(MyModule; the_type=Function)
+methods_of(MyModule; the_type=Function)
 ```
 
 # Extended help
@@ -251,13 +251,13 @@ If no subtypes exist, it will show " - `None`".
 ```jldoctest
 julia> using UtilsKit
 
-julia> occursin("Available", methodsOf(Int))
+julia> occursin("Available", methods_of(Int))
 true
 ```
 """
-function methodsOf end
+function methods_of end
 
-function methodsOf(T::Type; ds="\n", is_subtype=false, bullet=" - ", purpose_function=purpose)
+function methods_of(T::Type; ds="\n", is_subtype=false, bullet=" - ", purpose_function=purpose)
     sub_types = subtypes(T)
     type_name = nameof(T)
     if !is_subtype
@@ -273,34 +273,34 @@ function methodsOf(T::Type; ds="\n", is_subtype=false, bullet=" - ", purpose_fun
             ds *= "$bullet `$(sub_type_name)`: $(purpose_function(sub_type)) \n"
             sub_sub_types = subtypes(sub_type)
             if !isempty(sub_sub_types)
-                ds = methodsOf(sub_type; ds=ds, is_subtype=true, bullet="    " * bullet, purpose_function=purpose_function)
+                ds = methods_of(sub_type; ds=ds, is_subtype=true, bullet="    " * bullet, purpose_function=purpose_function)
             end
         end
     end
     return ds
 end
 
-function methodsOf(M::Module; the_type=Type, internal_only=true, purpose_function=purpose)
-    defined_types = getDefinitions(M, the_type, internal_only=internal_only)
+function methods_of(M::Module; the_type=Type, internal_only=true, purpose_function=purpose)
+    defined_types = get_definitions(M, the_type, internal_only=internal_only)
     ds = "\n"
     foreach(defined_types) do defined_type
         M_type = getproperty(M, nameof(defined_type))
         M_subtypes = subtypes(M_type)
         is_subtype = isempty(M_subtypes)
         ds = is_subtype ? ds : ds * "\n"
-        ds = methodsOf(M_type; ds=ds, is_subtype=is_subtype, bullet=" - ", purpose_function=purpose_function)
+        ds = methods_of(M_type; ds=ds, is_subtype=is_subtype, bullet=" - ", purpose_function=purpose_function)
     end
     return ds
 end
 
 
 """
-    printMethodSignatures(f::Function; path::Symbol = :relative_pwd, io::IO = stdout, path_color::Symbol = :cyan) -> Nothing
+    print_method_signatures(f::Function; path::Symbol = :relative_pwd, io::IO = stdout, path_color::Symbol = :cyan) -> Nothing
 
 Print method signatures as a bulleted list.
 
 - The leading `path:line` segment (when present) is colored (defaults to `:cyan`).
-- Uses [`getMethodSignatures`](@ref) under the hood.
+- Uses [`get_method_signatures`](@ref) under the hood.
 
 # Examples
 
@@ -308,13 +308,13 @@ Print method signatures as a bulleted list.
 julia> using UtilsKit
 
 julia> redirect_stdout(devnull) do
-           printMethodSignatures(+)
+           print_method_signatures(+)
        end === nothing
 true
 ```
 """
-function printMethodSignatures(f::Function; path::Symbol = :relative_pwd, io::IO = stdout, path_color::Symbol = :cyan)
-    for s in getMethodSignatures(f; path=path)
+function print_method_signatures(f::Function; path::Symbol = :relative_pwd, io::IO = stdout, path_color::Symbol = :cyan)
+    for s in get_method_signatures(f; path=path)
         parts = split(s, "  ", limit=2)
         if length(parts) == 2
             loc, rest = parts[1], parts[2]
@@ -332,12 +332,12 @@ end
 
 
 """
-    showMethodsOf(T)
+    show_methods_of(T)
 
 Display the subtypes and their purposes of a type in a formatted way.
 
 # Description
-This function displays the hierarchical structure of subtypes and their purposes for a given type. It uses `methodsOf` internally to generate the formatted output and prints it to the console.
+This function displays the hierarchical structure of subtypes and their purposes for a given type. It uses `methods_of` internally to generate the formatted output and prints it to the console.
 
 # Arguments
 - `T`: The type whose subtypes and purposes should be displayed
@@ -348,14 +348,14 @@ This function displays the hierarchical structure of subtypes and their purposes
 # Examples
 ```julia
 # Display subtypes of LandEcosystem
-showMethodsOf(LandEcosystem)
+show_methods_of(LandEcosystem)
 
 # Display subtypes of a specific model type
-showMethodsOf(ambientCO2)
+show_methods_of(ambientCO2)
 ```
 
 # Extended help
-The output format is the same as `methodsOf`, showing:
+The output format is the same as `methods_of`, showing:
 ```
 ## TypeName
 Purpose of the type
@@ -367,7 +367,7 @@ Purpose of the type
     - nested_subtype2: purpose
 ```
 
-This function is a convenience wrapper around `methodsOf` that automatically prints the output to the console.
+This function is a convenience wrapper around `methods_of` that automatically prints the output to the console.
 
 # Examples
 
@@ -375,18 +375,18 @@ This function is a convenience wrapper around `methodsOf` that automatically pri
 julia> using UtilsKit
 
 julia> redirect_stdout(devnull) do
-           showMethodsOf(Int)
+           show_methods_of(Int)
        end === nothing
 true
 ```
 """
-function showMethodsOf(typ; purpose_function=Base.Docs.doc)
-    println(methodsOf(typ, purpose_function=purpose_function))
+function show_methods_of(typ; purpose_function=Base.Docs.doc)
+    println(methods_of(typ, purpose_function=purpose_function))
     return nothing
 end
 
 """
-getDefinitions(a_module, what_to_get; internal_only=true)
+get_definitions(a_module, what_to_get; internal_only=true)
 
 Returns all defined (and optionally internal) objects in a module.
 
@@ -401,7 +401,7 @@ Returns all defined (and optionally internal) objects in a module.
 # Example
 ```julia
 # Get all defined types in a module
-defined_types = getDefinitions(MyModule, Type)
+defined_types = get_definitions(MyModule, Type)
 ```
 
 # Examples
@@ -409,11 +409,11 @@ defined_types = getDefinitions(MyModule, Type)
 ```jldoctest
 julia> using UtilsKit
 
-julia> getDefinitions(UtilsKit, Function; internal_only=false) isa Vector
+julia> get_definitions(UtilsKit, Function; internal_only=false) isa Vector
 true
 ```
 """
-function getDefinitions(mod::Module, kind; internal_only=true)
+function get_definitions(mod::Module, kind; internal_only=true)
     all_defined_things = filter(x -> isdefined(mod, x) && isa(getproperty(mod, x), kind), names(mod))
     defined_things = all_defined_things
     if internal_only
@@ -473,7 +473,7 @@ purpose(T) = "Undefined purpose for $(nameof(T)) of type $(typeof(T)). Add `purp
 
 
 """
-    valToSymbol(val)
+    val_to_symbol(val)
 
 Returns the symbol corresponding to the type of the input value.
 
@@ -488,11 +488,11 @@ A `Symbol` representing the type of the input value.
 ```jldoctest
 julia> using UtilsKit
 
-julia> valToSymbol(Val(:x))
+julia> val_to_symbol(Val(:x))
 :x
 ```
 """
-function valToSymbol(x)
+function val_to_symbol(x)
     return typeof(x).parameters[1]
 end
 

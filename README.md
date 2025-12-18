@@ -31,13 +31,13 @@ A comprehensive utility package providing foundational functions for data manipu
 
 ## Submodules (optional)
 
-The package keeps a flat API for convenience (e.g. `positiveMask(...)`), but also exposes submodules:
+The package keeps a flat API for convenience (e.g. `positive_mask(...)`), but also exposes submodules:
 
 ```julia
 using UtilsKit
 
-UtilsKit.ForArray.positiveMask([1, 0, -1])
-UtilsKit.ForNumber.replaceInvalidNumber(NaN, 0.0)
+UtilsKit.ForArray.positive_mask([1, 0, -1])
+UtilsKit.ForNumber.replace_invalid_number(NaN, 0.0)
 ```
 
 Note: long-tuple utilities live under `UtilsKit.ForLongTuples` to avoid naming conflicts with `Base` and with the exported `LongTuple` type.
@@ -56,70 +56,70 @@ using UtilsKit
 
 # Convert dictionary to NamedTuple
 dict = Dict(:a => 1, :b => 2, :c => Dict(:d => 3))
-nt = dictToNamedTuple(dict)
+nt = dict_to_namedtuple(dict)
 
 # Display a banner (FIGlet)
-printFIGletBanner("UtilsKit")
+print_figlet_banner("UtilsKit")
 
 # Work with arrays
 arr = [1, 2, 3, 0, -1, 5]
-bool_arr = positiveMask(arr)
+bool_arr = positive_mask(arr)
 
 # String utilities
-str = toUpperCaseFirst("hello_world", "Time")  # Returns :TimeHelloWorld
+str = to_uppercase_first("hello_world", "Time")  # Returns :TimeHelloWorld
 
 # Generate type documentation
 using UtilsKit
-doc_str = getTypeDocString(SomeType)
+doc_str = get_type_docstring(SomeType)
 ```
 
 ## Main Functionality
 
 ### Array Operations
 
-- `positiveMask`: Convert arrays to boolean masks
-- `upperTriangleMask`, `lowerTriangleMask`, `offDiagonalMask`: Matrix mask helpers
-- `offDiagonalElements`, `upperOffDiagonalElements`, `lowerOffDiagonalElements`: Extract off-diagonal elements
-- `stackAsColumns`: Stack multiple arrays as columns
-- `viewAtTrailingIndices`: Create array views using trailing indices
+- `positive_mask`: Convert arrays to boolean masks
+- `upper_triangle_mask`, `lower_triangle_mask`, `off_diagonal_mask`: Matrix mask helpers
+- `off_diagonal_elements`, `upper_off_diagonal_elements`, `lower_off_diagonal_elements`: Extract off-diagonal elements
+- `stack_as_columns`: Stack multiple arrays as columns
+- `view_at_trailing_indices`: Create array views using trailing indices
 
 ### Collections and Data Structures
 
-- `dictToNamedTuple`: Convert nested dictionaries to NamedTuples
-- `namedTupleFromNamesValues`: Create NamedTuples from names + values
-- `dropNamedTupleFields`: Remove fields from NamedTuples
-- `mergeNamedTuplePreferNonEmpty`: Combine NamedTuples (preferring non-empty fields)
-- `tableToNamedTuple`: Convert tables to NamedTuples
-- `setNamedTupleField`, `setNamedTupleSubfield`: Modify NamedTuple fields
-- `listToTable`: Convert lists to a `TypedTables.Table`
+- `dict_to_namedtuple`: Convert nested dictionaries to NamedTuples
+- `namedtuple_from_names_values`: Create NamedTuples from names + values
+- `drop_namedtuple_fields`: Remove fields from NamedTuples
+- `merge_namedtuple_prefer_nonempty`: Combine NamedTuples (preferring non-empty fields)
+- `table_to_namedtuple`: Convert tables to NamedTuples
+- `set_namedtuple_field`, `set_namedtuple_subfield`: Modify NamedTuple fields
+- `list_to_table`: Convert lists to a `TypedTables.Table`
 - `duplicates`: Find duplicate elements
 
 ### String Utilities
 
-- `toUpperCaseFirst`: Convert strings to camelCase/PascalCase
+- `to_uppercase_first`: Convert strings to camelCase/PascalCase
 
 ### Number Utilities
 
-- `clampZeroOne`: Clamp values between 0 and 1
-- `atLeastZero`, `atLeastOne`, `atMostZero`, `atMostOne`: Value limiting functions
-- `isInvalidNumber`: Check for invalid numbers
-- `replaceInvalidNumber`: Replace invalid values
-- `getFrac`: Get fractional part
-- `cumSum!`: In-place cumulative sum
+- `clamp_zero_one`: Clamp values between 0 and 1
+- `at_least_zero`, `at_least_one`, `at_most_zero`, `at_most_one`: Value limiting functions
+- `is_invalid_number`: Check for invalid numbers
+- `replace_invalid_number`: Replace invalid values
+- `safe_divide`: Safe divide (returns numerator if denominator is zero)
+- `cumulative_sum!`: In-place cumulative sum (dest-first: `cumulative_sum!(output, input)`)
 
 ### Display and Formatting
 
-- `printFIGletBanner`: Display ASCII art banners (FIGlet)
-- `printInfo`: Display formatted information
-- `printInfoSeparator`: Display separators
-- `setLogLevel`: Configure logging levels
-- `toggleTypeAbbrevInStacktrace`: Toggle stack trace display
+- `print_figlet_banner`: Display ASCII art banners (FIGlet)
+- `print_info`: Display formatted information
+- `print_info_separator`: Display separators
+- `set_log_level`: Configure logging levels
+- `toggle_type_abbrev_in_stacktrace`: Toggle stack trace display
 
 ### Type and Documentation Utilities
 
-- `getTypeDocString`: Generate formatted docstrings for types
-- `writeTypeDocString`: Write type docstrings to files
-- `loopWriteTypeDocString`: Batch write type docstrings
+- `get_type_docstring`: Generate formatted docstrings for types
+- `write_type_docstring`: Write type docstrings to files
+- `loop_write_type_docstring`: Batch write type docstrings
 
 ## Dependencies
 

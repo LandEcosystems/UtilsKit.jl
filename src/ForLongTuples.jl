@@ -7,9 +7,9 @@ Includes helpers for mapping/folding and converting between `LongTuple` and regu
 module ForLongTuples
 
 export LongTuple
-export foldlLongTuple
-export toTuple
-export toLongTuple
+export foldl_longtuple
+export to_tuple
+export to_longtuple
 
 """
     LongTuple{NSPLIT,T}
@@ -131,7 +131,7 @@ end
 
 
 """
-    foldlLongTuple(f, lt::LongTuple; init)
+    foldl_longtuple(f, lt::LongTuple; init)
 
 Fold over the elements of a `LongTuple` in a compiler-friendly (unrolled) way.
 
@@ -140,13 +140,13 @@ Fold over the elements of a `LongTuple` in a compiler-friendly (unrolled) way.
 ```jldoctest
 julia> using UtilsKit
 
-julia> lt = toLongTuple((1, 2, 3), 2);
+julia> lt = to_longtuple((1, 2, 3), 2);
 
-julia> foldlLongTuple((x, acc) -> acc + x, lt; init=0)
+julia> foldl_longtuple((x, acc) -> acc + x, lt; init=0)
 6
 ```
 """
-@generated function foldlLongTuple(f, lt::LongTuple{NSPL,T}; init) where {T,NSPL}
+@generated function foldl_longtuple(f, lt::LongTuple{NSPL,T}; init) where {T,NSPL}
     exes = []
     N = length(T.parameters)
     lastlength = length(last(T.parameters).parameters)
@@ -161,7 +161,7 @@ end
 
 
 """
-    toTuple(long_tuple)
+    to_tuple(long_tuple)
 
 Convert a LongTuple to a regular tuple.
 
@@ -176,13 +176,13 @@ Convert a LongTuple to a regular tuple.
 ```jldoctest
 julia> using UtilsKit
 
-julia> lt = toLongTuple((1, 2, 3), 2);
+julia> lt = to_longtuple((1, 2, 3), 2);
 
-julia> toTuple(lt)
+julia> to_tuple(lt)
 (1, 2, 3)
 ```
 """
-function toTuple(lt::LongTuple)
+function to_tuple(lt::LongTuple)
     emp_vec = []
     foreach(lt) do x
         push!(emp_vec, x)
@@ -191,7 +191,7 @@ function toTuple(lt::LongTuple)
 end
 
 """
-    toLongTuple(normal_tuple; longtuple_size=5)
+    to_longtuple(normal_tuple; longtuple_size=5)
 
 Create a LongTuple from a normal tuple.
 
@@ -207,26 +207,26 @@ Create a LongTuple from a normal tuple.
 ```jldoctest
 julia> using UtilsKit
 
-julia> lt = toLongTuple((1, 2, 3), 2);
+julia> lt = to_longtuple((1, 2, 3), 2);
 
 julia> lt[3]
 3
 ```
 """
-function toLongTuple(tup::Tuple, longtuple_size=5)
+function to_longtuple(tup::Tuple, longtuple_size=5)
     longtuple_size = min(length(tup), longtuple_size)
     LongTuple{longtuple_size}(tup...)
 end
 
 
 """
-    toLongTuple(normal_tuple; longtuple_size=5)
+    to_longtuple(normal_tuple; longtuple_size=5)
 
 # Arguments:
 - `normal_tuple`: a normal tuple
 - `longtuple_size`: size to break down the tuple into
 """
-function toLongTuple(lt::LongTuple, longtuple_size=5)
+function to_longtuple(lt::LongTuple, longtuple_size=5)
     lt
 end
 

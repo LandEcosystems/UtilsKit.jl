@@ -66,17 +66,17 @@ using UtilsKit
 
 # Convert dictionary to NamedTuple
 dict = Dict(:a => 1, :b => 2)
-nt = dictToNamedTuple(dict)
+nt = dict_to_namedtuple(dict)
 
 # Display a banner (FIGlet)
-printFIGletBanner("UtilsKit")
+print_figlet_banner("UtilsKit")
 
 # Work with arrays
 arr = [1, 2, 3, 0, -1, 5]
-bool_arr = positiveMask(arr)
+bool_arr = positive_mask(arr)
 
 # String utilities
-str = toUpperCaseFirst("hello_world", "Time")  # Returns :TimeHelloWorld
+str = to_uppercase_first("hello_world", "Time")  # Returns :TimeHelloWorld
 ```
 
 # Notes
@@ -88,10 +88,10 @@ str = toUpperCaseFirst("hello_world", "Time")  # Returns :TimeHelloWorld
 
 # See Also
 
-- [`dictToNamedTuple`](@ref) for dictionary conversion
-- [`printFIGletBanner`](@ref) for ASCII art display
-- [`positiveMask`](@ref) for array masking
-- [`getTypeDocString`](@ref) for type documentation generation
+- [`dict_to_namedtuple`](@ref) for dictionary conversion
+- [`print_figlet_banner`](@ref) for ASCII art display
+- [`positive_mask`](@ref) for array masking
+- [`get_type_docstring`](@ref) for type documentation generation
 """
 module UtilsKit
 
@@ -107,53 +107,57 @@ module UtilsKit
    include("ForPkg.jl")          # UtilsKit.ForPkg
 
    # -----------------------------------------------------------------------
-   # Backward-compatible flat API (re-export from submodules)
+   # Flat API (re-export from submodules)
    # -----------------------------------------------------------------------
 
    # Number
-   using .ForNumber: clampZeroOne, cumSum!, getFrac, isInvalidNumber, replaceInvalidNumber, atLeastZero, atLeastOne, atMostZero, atMostOne
-   export clampZeroOne, cumSum!, getFrac, isInvalidNumber, replaceInvalidNumber, atLeastZero, atLeastOne, atMostZero, atMostOne
+   using .ForNumber: clamp_zero_one, cumulative_sum!, safe_divide, is_invalid_number, replace_invalid_number,
+                     at_least_zero, at_least_one, at_most_zero, at_most_one
+   export clamp_zero_one, cumulative_sum!, safe_divide, is_invalid_number, replace_invalid_number,
+          at_least_zero, at_least_one, at_most_zero, at_most_one
 
    # String
-   using .ForString: toUpperCaseFirst
-   export toUpperCaseFirst
+   using .ForString: to_uppercase_first
+   export to_uppercase_first
 
    # Methods / introspection
-   using .ForMethods: doNothing, getMethodTypes, getDefinitions, getMethodSignatures, methodsOf, printMethodSignatures, purpose, showMethodsOf, valToSymbol
-   export doNothing, getMethodTypes, getDefinitions, getMethodSignatures, methodsOf, printMethodSignatures, purpose, showMethodsOf, valToSymbol
+   using .ForMethods: do_nothing, get_method_types, get_definitions, get_method_signatures,
+                      methods_of, print_method_signatures, purpose, show_methods_of, val_to_symbol
+   export do_nothing, get_method_types, get_definitions, get_method_signatures,
+          methods_of, print_method_signatures, purpose, show_methods_of, val_to_symbol
 
    # Docstrings
-   using .ForDocStrings: loopWriteTypeDocString, writeTypeDocString, getTypeDocString
-   export loopWriteTypeDocString, writeTypeDocString, getTypeDocString
+   using .ForDocStrings: loop_write_type_docstring, write_type_docstring, get_type_docstring
+   export loop_write_type_docstring, write_type_docstring, get_type_docstring
 
    # Collections / NamedTuple utils
-   using .ForCollections: dictToNamedTuple, mergeNamedTuple, tcPrint,
-                          dropNamedTupleFields, foldlTupleUnrolled, mergeNamedTuplePreferNonEmpty, tableToNamedTuple,
-                          namedTupleFromNamesValues, duplicates, dropEmptyNamedTupleFields,
-                          setNamedTupleField, setNamedTupleSubfield, listToTable
-   export dictToNamedTuple, mergeNamedTuple, tcPrint,
-          dropNamedTupleFields, foldlTupleUnrolled, mergeNamedTuplePreferNonEmpty, tableToNamedTuple,
-          namedTupleFromNamesValues, duplicates, dropEmptyNamedTupleFields,
-          setNamedTupleField, setNamedTupleSubfield, listToTable
+   using .ForCollections: dict_to_namedtuple, merge_namedtuple, tc_print,
+                          drop_namedtuple_fields, foldl_tuple_unrolled, merge_namedtuple_prefer_nonempty, table_to_namedtuple,
+                          namedtuple_from_names_values, duplicates, drop_empty_namedtuple_fields,
+                          set_namedtuple_field, set_namedtuple_subfield, list_to_table
+   export dict_to_namedtuple, merge_namedtuple, tc_print,
+          drop_namedtuple_fields, foldl_tuple_unrolled, merge_namedtuple_prefer_nonempty, table_to_namedtuple,
+          namedtuple_from_names_values, duplicates, drop_empty_namedtuple_fields,
+          set_namedtuple_field, set_namedtuple_subfield, list_to_table
 
    # Long tuple utilities
-   using .ForLongTuples: LongTuple, foldlLongTuple, toTuple, toLongTuple
-   export LongTuple, foldlLongTuple, toTuple, toLongTuple
+   using .ForLongTuples: LongTuple, foldl_longtuple, to_tuple, to_longtuple
+   export LongTuple, foldl_longtuple, to_tuple, to_longtuple
 
    # Arrays
-   using .ForArray: positiveMask, lowerTriangleMask, offDiagonalMask, upperTriangleMask,
-                    viewAtTrailingIndices, offDiagonalElements, upperOffDiagonalElements, lowerOffDiagonalElements,
-                    stackAsColumns
-   export positiveMask, lowerTriangleMask, offDiagonalMask, upperTriangleMask,
-          viewAtTrailingIndices, offDiagonalElements, upperOffDiagonalElements, lowerOffDiagonalElements,
-          stackAsColumns
+   using .ForArray: positive_mask, lower_triangle_mask, off_diagonal_mask, upper_triangle_mask,
+                    view_at_trailing_indices, off_diagonal_elements, upper_off_diagonal_elements, lower_off_diagonal_elements,
+                    stack_as_columns
+   export positive_mask, lower_triangle_mask, off_diagonal_mask, upper_triangle_mask,
+          view_at_trailing_indices, off_diagonal_elements, upper_off_diagonal_elements, lower_off_diagonal_elements,
+          stack_as_columns
 
    # Display helpers
-   using .ForDisplay: setLogLevel, printFIGletBanner, printInfo, printInfoSeparator, toggleTypeAbbrevInStacktrace
-   export setLogLevel, printFIGletBanner, printInfo, printInfoSeparator, toggleTypeAbbrevInStacktrace
+   using .ForDisplay: set_log_level, print_figlet_banner, print_info, print_info_separator, toggle_type_abbrev_in_stacktrace
+   export set_log_level, print_figlet_banner, print_info, print_info_separator, toggle_type_abbrev_in_stacktrace
 
    # Pkg / extensions helpers
-   using .ForPkg: addExtensionToFunction, addExtensionToPackage, addPackage, removeExtensionFromPackage
-   export addExtensionToFunction, addExtensionToPackage, addPackage, removeExtensionFromPackage
+   using .ForPkg: add_extension_to_function, add_extension_to_package, add_package, remove_extension_from_package
+   export add_extension_to_function, add_extension_to_package, add_package, remove_extension_from_package
 
 end # module UtilsKit

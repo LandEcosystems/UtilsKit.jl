@@ -11,17 +11,17 @@ using Crayons
 using Logging
 using FIGlet
 
-export setLogLevel
-export printFIGletBanner
-export printInfo
-export printInfoSeparator
-export toggleTypeAbbrevInStacktrace
+export set_log_level
+export print_figlet_banner
+export print_info
+export print_info_separator
+export toggle_type_abbrev_in_stacktrace
 
 figlet_fonts = ("3D Diagonal", "3D-ASCII", "3d", "4max", "5 Line Oblique", "5x7", "6x9", "AMC AAA01", "AMC Razor", "AMC Razor2", "AMC Slash", "AMC Slider", "AMC Thin", "AMC Tubes", "AMC Untitled", "ANSI Regular", "ANSI Shadow", "Big Money-ne", "Big Money-nw", "Big Money-se", "Big Money-sw", "Bloody", "Caligraphy2", "DOS Rebel", "Dancing Font", "Def Leppard", "Delta Corps Priest 1", "Electronic", "Elite", "Fire Font-k", "Fun Face", "Georgia11", "Larry 3D", "Lil Devil", "Line Blocks", "NT Greek", "NV Script", "Red Phoenix", "Rowan Cap", "S Blood", "THIS", "Two Point", "USA Flag", "Wet Letter", "acrobatic", "alligator", "alligator2", "alligator3", "alphabet", "arrows", "asc_____", "avatar", "banner", "banner3", "banner3-D", "banner4", "barbwire", "bell", "big", "bolger", "braced", "bright", "bulbhead", "caligraphy", "charact2", "charset_", "clb6x10", "colossal", "computer", "cosmic", "crawford", "crazy", "diamond", "doom", "fender", "fraktur", "georgi16", "ghoulish", "graffiti", "hollywood", "jacky", "jazmine", "maxiwi", "merlin1", "nancyj", "nancyj-improved", "nscript", "o8", "ogre", "pebbles", "reverse", "roman", "rounded", "rozzo", "script", "slant", "small", "soft", "speed", "standard", "stop", "tanja", "thick", "train", "univers", "whimsy");
 
 
 """
-    setLogLevel()
+    set_log_level()
 
 Sets the logging level to `Info`.
 
@@ -30,17 +30,17 @@ Sets the logging level to `Info`.
 ```jldoctest
 julia> using UtilsKit
 
-julia> setLogLevel();
+julia> set_log_level();
 ```
 """
-function setLogLevel()
+function set_log_level()
     logger = ConsoleLogger(stderr, Logging.Info)
     global_logger(logger)
     return nothing
 end
 
 """
-    setLogLevel(log_level::Symbol)
+    set_log_level(log_level::Symbol)
 
 Sets the logging level to the specified level.
 
@@ -52,10 +52,10 @@ Sets the logging level to the specified level.
 ```jldoctest
 julia> using UtilsKit
 
-julia> setLogLevel(:warn);
+julia> set_log_level(:warn);
 ```
 """
-function setLogLevel(log_level::Symbol)
+function set_log_level(log_level::Symbol)
     logger = ConsoleLogger(stderr, Logging.Info)
     if log_level == :debug
         logger = ConsoleLogger(stderr, Logging.Debug)
@@ -69,7 +69,7 @@ function setLogLevel(log_level::Symbol)
 end
 
 """
-    printFIGletBanner(disp_text="UtilsKit"; color=true, n=1, pause=0.1)
+    print_figlet_banner(disp_text="UtilsKit"; color=true, n=1, pause=0.1)
 
 Displays the given text as a banner using `FIGlet`.
 
@@ -85,12 +85,12 @@ Displays the given text as a banner using `FIGlet`.
 julia> using UtilsKit
 
 julia> redirect_stdout(devnull) do
-           printFIGletBanner("UtilsKit"; color=false, n=1, pause=0.0)
+           print_figlet_banner("UtilsKit"; color=false, n=1, pause=0.0)
        end === nothing
 true
 ```
 """
-function printFIGletBanner(disp_text="UtilsKit"; color::Bool=true, n::Integer=1, pause::Real=0.1)
+function print_figlet_banner(disp_text="UtilsKit"; color::Bool=true, n::Integer=1, pause::Real=0.1)
     n < 1 && return nothing
     for i in 1:n
         if color
@@ -106,13 +106,13 @@ function printFIGletBanner(disp_text="UtilsKit"; color::Bool=true, n::Integer=1,
     return nothing
 end
 
-# Backward-compatible (within this release): allow `printFIGletBanner(text, color)` positional calls
-printFIGletBanner(disp_text, color::Bool; n::Integer=1, pause::Real=0.1) = printFIGletBanner(disp_text; color=color, n=n, pause=pause)
+# Backward-compatible (within this release): allow `print_figlet_banner(text, color)` positional calls
+print_figlet_banner(disp_text, color::Bool; n::Integer=1, pause::Real=0.1) = print_figlet_banner(disp_text; color=color, n=n, pause=pause)
 
 
 
 """
-    printInfo(func, file_name, line_number, info_message; spacer=" ", n_f=1, n_m=1)
+    print_info(func, file_name, line_number, info_message; spacer=" ", n_f=1, n_m=1)
 
 Logs an informational message with optional function, file, and line number context.
 
@@ -127,7 +127,7 @@ Logs an informational message with optional function, file, and line number cont
 
 # Example
 ```julia
-printInfo(myfunc, "myfile.jl", 42, "Computation finished")
+print_info(myfunc, "myfile.jl", 42, "Computation finished")
 ```
 
 # Examples
@@ -136,12 +136,12 @@ printInfo(myfunc, "myfile.jl", 42, "Computation finished")
 julia> using UtilsKit
 
 julia> redirect_stdout(devnull) do
-           printInfo(nothing, "file.jl", 1, "hello"; n_f=0, n_m=0)
+           print_info(nothing, "file.jl", 1, "hello"; n_f=0, n_m=0)
        end === nothing
 true
 ```
 """
-function printInfo(func, file_name, line_number, info_message; spacer=" ", n_f=1, n_m=1, display_color=(0, 152, 221))
+function print_info(func, file_name, line_number, info_message; spacer=" ", n_f=1, n_m=1, display_color=(0, 152, 221))
     func_space = spacer ^ n_f
     info_space = spacer ^ n_m
     file_link = ""
@@ -213,7 +213,7 @@ function _colorizeBacktickedSegments(text::String, color)
 end
 
 """
-    printInfoSeparator(; sep_text="", sep_width=100, display_color=(223,184,21))
+    print_info_separator(; sep_text="", sep_width=100, display_color=(223,184,21))
 
 Prints a visually distinct separator line to the console, optionally with centered text.
 
@@ -224,8 +224,8 @@ Prints a visually distinct separator line to the console, optionally with center
 
 # Example
 ```julia
-printInfoSeparator()
-printInfoSeparator(sep_text=" SECTION START ", sep_width=80)
+print_info_separator()
+print_info_separator(sep_text=" SECTION START ", sep_width=80)
 ```
 
 # Notes
@@ -238,24 +238,24 @@ printInfoSeparator(sep_text=" SECTION START ", sep_width=80)
 julia> using UtilsKit
 
 julia> redirect_stdout(devnull) do
-           printInfoSeparator(sep_text=" SECTION ", sep_width=40)
+           print_info_separator(sep_text=" SECTION ", sep_width=40)
        end === nothing
 true
 ```
 """
-function printInfoSeparator(; sep_text="", sep_width=100, display_color=(223,184,21))
+function print_info_separator(; sep_text="", sep_width=100, display_color=(223,184,21))
     if isempty(sep_text) 
         sep_text=repeat("-", sep_width)
     else
         sep_remain = (sep_width - length(sep_text))%2
         sep_text = repeat("-", div(sep_width - length(sep_text) + sep_remain, 2)) * sep_text * repeat("-", div(sep_width - length(sep_text) + sep_remain, 2))
     end
-    printInfo(nothing, @__FILE__, @__LINE__, "\n`$(sep_text)`\n", display_color=display_color, n_f=0, n_m=0)
+    print_info(nothing, @__FILE__, @__LINE__, "\n`$(sep_text)`\n", display_color=display_color, n_f=0, n_m=0)
 end    
 
 
 """
-    toggleTypeAbbrevInStacktrace(toggle=true)
+    toggle_type_abbrev_in_stacktrace(toggle=true)
 
 Modifies the display of stack traces to reduce verbosity for NamedTuples.
 
@@ -267,10 +267,10 @@ Modifies the display of stack traces to reduce verbosity for NamedTuples.
 ```jldoctest
 julia> using UtilsKit
 
-julia> toggleTypeAbbrevInStacktrace(true);
+julia> toggle_type_abbrev_in_stacktrace(true);
 ```
 """
-function toggleTypeAbbrevInStacktrace(toggle=true)
+function toggle_type_abbrev_in_stacktrace(toggle=true)
     if toggle
         eval(:(Base.show(io::IO, nt::Type{<:NamedTuple}) = print(io, "NT")))
         eval(:(Base.show(io::IO, nt::Type{<:Tuple}) = print(io, "T")))

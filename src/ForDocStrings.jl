@@ -9,14 +9,14 @@ module ForDocStrings
 
 using Base.Docs: doc as base_doc
 using InteractiveUtils: subtypes, supertypes
-using ..ForMethods: methodsOf, purpose
+using ..ForMethods: methods_of, purpose
 
-export loopWriteTypeDocString
-export writeTypeDocString
-export getTypeDocString
+export loop_write_type_docstring
+export write_type_docstring
+export get_type_docstring
 
 """
-    getTypeDocString(T::Type)
+    get_type_docstring(T::Type)
 
 Generate a docstring for a type in a formatted way.
 
@@ -34,14 +34,14 @@ This function generates a formatted docstring for a type, including its purpose 
 ```jldoctest
 julia> using UtilsKit
 
-julia> s = getTypeDocString(Int);
+julia> s = get_type_docstring(Int);
 
 julia> occursin("# Int", s)
 true
 ```
 
 """
-function getTypeDocString(typ::Type; purpose_function=purpose)
+function get_type_docstring(typ::Type; purpose_function=purpose)
     doc_string = ""
     doc_string *= "\n# $(nameof(typ))\n\n"
     doc_string *= "$(purpose_function(typ))\n\n"
@@ -52,13 +52,13 @@ function getTypeDocString(typ::Type; purpose_function=purpose)
         doc_string *= "-----\n\n"
         doc_string *= "# Extended help\n\n"
         doc_string *= "## Available methods/subtypes:\n"
-        doc_string *= "$(methodsOf(typ, is_subtype=true, purpose_function=purpose_function))\n\n"
+        doc_string *= "$(methods_of(typ, is_subtype=true, purpose_function=purpose_function))\n\n"
     end
     return doc_string
 end
 
 """
-    writeTypeDocString(o_file, T)
+    write_type_docstring(o_file, T)
 
 Write a docstring for a type to a file.
 
@@ -81,15 +81,15 @@ julia> io = IOBuffer();
 
 julia> struct _TmpNoDocType end;
 
-julia> writeTypeDocString(io, _TmpNoDocType) === io
+julia> write_type_docstring(io, _TmpNoDocType) === io
 true
 ```
 
 """
-function writeTypeDocString(io, typ; purpose_function=purpose)
+function write_type_docstring(io, typ; purpose_function=purpose)
     doc_string = base_doc(typ)
     if startswith(string(doc_string), "No documentation found for public symbol")
-       write(io, "@doc \"\"\"\n$(getTypeDocString(typ, purpose_function=purpose_function))\n\"\"\"\n")
+       write(io, "@doc \"\"\"\n$(get_type_docstring(typ, purpose_function=purpose_function))\n\"\"\"\n")
     #    write(o_file, "$(nameof(T))\n\n")
        write(io, "$(typ)\n\n")
     # else
@@ -100,7 +100,7 @@ function writeTypeDocString(io, typ; purpose_function=purpose)
  end
 
 """
-    loopWriteTypeDocString(o_file, T)
+    loop_write_type_docstring(o_file, T)
 
 Write a docstring for a type to a file.
 
@@ -123,16 +123,16 @@ julia> io = IOBuffer();
 
 julia> abstract type _TmpNoDocAbstract end;
 
-julia> loopWriteTypeDocString(io, _TmpNoDocAbstract) === io
+julia> loop_write_type_docstring(io, _TmpNoDocAbstract) === io
 true
 ```
 
 """
- function loopWriteTypeDocString(io, typ; purpose_function=purpose)
-    writeTypeDocString(io, typ, purpose_function=purpose_function)
+ function loop_write_type_docstring(io, typ; purpose_function=purpose)
+    write_type_docstring(io, typ, purpose_function=purpose_function)
     sub_types = subtypes(typ)
     for sub_type in sub_types
-       io = loopWriteTypeDocString(io, sub_type, purpose_function=purpose_function)
+       io = loop_write_type_docstring(io, sub_type, purpose_function=purpose_function)
     end
     return io
  end

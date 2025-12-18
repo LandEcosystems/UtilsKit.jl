@@ -8,16 +8,16 @@ Array-focused utilities:
 """
 module ForArray
 
-using ..ForNumber: replaceInvalidNumber
+using ..ForNumber: replace_invalid_number
 
-export positiveMask
-export lowerTriangleMask, offDiagonalMask, upperTriangleMask
-export viewAtTrailingIndices
-export offDiagonalElements, upperOffDiagonalElements, lowerOffDiagonalElements
-export stackAsColumns
+export positive_mask
+export lower_triangle_mask, off_diagonal_mask, upper_triangle_mask
+export view_at_trailing_indices
+export off_diagonal_elements, upper_off_diagonal_elements, lower_off_diagonal_elements
+export stack_as_columns
 
 """
-    positiveMask(_array)
+    positive_mask(_array)
 
 Converts an array into a boolean array where elements greater than zero are `true`.
 
@@ -32,16 +32,16 @@ A boolean array with the same dimensions as `_array`.
 ```jldoctest
 julia> using UtilsKit
 
-julia> positiveMask([1.0, 0.0, -1.0])
+julia> positive_mask([1.0, 0.0, -1.0])
 3-element BitVector:
  1
  0
  0
 ```
 """
-function positiveMask(arr)
+function positive_mask(arr)
     fill_value = 0.0
-    arr = map(x -> replaceInvalidNumber(x, fill_value), arr)
+    arr = map(x -> replace_invalid_number(x, fill_value), arr)
     arr_bits = arr .> fill_value
     return arr_bits
 end
@@ -49,7 +49,7 @@ end
 
 
 """
-    offDiagonalMask(A::AbstractMatrix)
+    off_diagonal_mask(A::AbstractMatrix)
 
 returns a matrix of same shape as input with 1 for all non diagonal elements
 
@@ -58,13 +58,13 @@ returns a matrix of same shape as input with 1 for all non diagonal elements
 ```jldoctest
 julia> using UtilsKit
 
-julia> offDiagonalMask([1 2; 3 4])
+julia> off_diagonal_mask([1 2; 3 4])
 2×2 Matrix{Float64}:
  0.0  1.0
  1.0  0.0
 ```
 """
-function offDiagonalMask(A::AbstractMatrix)
+function off_diagonal_mask(A::AbstractMatrix)
     o_mat = zeros(size(A))
     for ι ∈ CartesianIndices(A)
         if ι[1] ≠ ι[2]
@@ -76,7 +76,7 @@ end
 
 
 """
-    lowerTriangleMask(A::AbstractMatrix)
+    lower_triangle_mask(A::AbstractMatrix)
 
 returns a matrix of same shape as input with 1 for all below diagonal elements and 0 elsewhere
 
@@ -85,13 +85,13 @@ returns a matrix of same shape as input with 1 for all below diagonal elements a
 ```jldoctest
 julia> using UtilsKit
 
-julia> lowerTriangleMask([1 2; 3 4])
+julia> lower_triangle_mask([1 2; 3 4])
 2×2 Matrix{Float64}:
  0.0  0.0
  1.0  0.0
 ```
 """
-function lowerTriangleMask(A::AbstractMatrix)
+function lower_triangle_mask(A::AbstractMatrix)
     o_mat = zeros(size(A))
     for ι ∈ CartesianIndices(A)
         if ι[1] > ι[2]
@@ -102,7 +102,7 @@ function lowerTriangleMask(A::AbstractMatrix)
 end
 
 """
-    upperTriangleMask(A::AbstractMatrix)
+    upper_triangle_mask(A::AbstractMatrix)
 
 returns a matrix of same shape as input with 1 for all above diagonal elements and 0 elsewhere
 
@@ -111,13 +111,13 @@ returns a matrix of same shape as input with 1 for all above diagonal elements a
 ```jldoctest
 julia> using UtilsKit
 
-julia> upperTriangleMask([1 2; 3 4])
+julia> upper_triangle_mask([1 2; 3 4])
 2×2 Matrix{Float64}:
  0.0  1.0
  0.0  0.0
 ```
 """
-function upperTriangleMask(A::AbstractMatrix)
+function upper_triangle_mask(A::AbstractMatrix)
     o_mat = zeros(size(A))
     for ι ∈ CartesianIndices(A)
         if ι[1] < ι[2]
@@ -130,7 +130,7 @@ end
 
 
 """
-    viewAtTrailingIndices(data::AbstractArray{<:Any, N}, idxs::Tuple{Vararg{Int}}) where N
+    view_at_trailing_indices(data::AbstractArray{<:Any, N}, idxs::Tuple{Vararg{Int}}) where N
 
 Creates a view of the input array `_dat` based on the provided indices tuple `inds`.
 
@@ -161,13 +161,13 @@ julia> A = Matrix(reshape(1:9, 3, 3))
  2  5  8
  3  6  9
 
-julia> viewAtTrailingIndices(A, (2, 3))[]
+julia> view_at_trailing_indices(A, (2, 3))[]
 8
 ```
 """
-function viewAtTrailingIndices end
+function view_at_trailing_indices end
 
-function viewAtTrailingIndices(data::AbstractArray{<:Any,N}, idxs::Tuple{Int}) where N
+function view_at_trailing_indices(data::AbstractArray{<:Any,N}, idxs::Tuple{Int}) where N
     if N == 1
         view(data, first(idxs))
     else
@@ -182,7 +182,7 @@ function viewAtTrailingIndices(data::AbstractArray{<:Any,N}, idxs::Tuple{Int}) w
     end
 end
 
-function viewAtTrailingIndices(data::AbstractArray{<:Any,N}, idxs::Tuple{Int,Int}) where N
+function view_at_trailing_indices(data::AbstractArray{<:Any,N}, idxs::Tuple{Int,Int}) where N
     if N == 1
         error("cannot get a view of 1-dimensional array in space using spatial indices tuple of size 2")
     elseif N == 2
@@ -200,7 +200,7 @@ function viewAtTrailingIndices(data::AbstractArray{<:Any,N}, idxs::Tuple{Int,Int
 end
 
 
-function viewAtTrailingIndices(data::AbstractArray{<:Any,N}, idxs::Tuple{Int,Int,Int}) where N
+function view_at_trailing_indices(data::AbstractArray{<:Any,N}, idxs::Tuple{Int,Int,Int}) where N
     if N < 3
         error("cannot get a view of smaller than 3-dimensional array in space using spatial indices tuple of size 3")
     elseif N == 3
@@ -218,7 +218,7 @@ function viewAtTrailingIndices(data::AbstractArray{<:Any,N}, idxs::Tuple{Int,Int
 end
 
 
-function viewAtTrailingIndices(data::AbstractArray{<:Any,N}, idxs::Tuple{Int,Int,Int,Int}) where N
+function view_at_trailing_indices(data::AbstractArray{<:Any,N}, idxs::Tuple{Int,Int,Int,Int}) where N
     if N < 4
         error("cannot get a view of smaller than 4-dimensional array in space using spatial indices tuple of size 4")
     elseif N == 4
@@ -237,7 +237,7 @@ end
 
 
 """
-    offDiagonalElements(A::AbstractMatrix)
+    off_diagonal_elements(A::AbstractMatrix)
 
 returns a vector comprising of off diagonal elements of a matrix
 
@@ -246,18 +246,18 @@ returns a vector comprising of off diagonal elements of a matrix
 ```jldoctest
 julia> using UtilsKit
 
-julia> offDiagonalElements([1 2; 3 4])
+julia> off_diagonal_elements([1 2; 3 4])
 2-element Vector{Int64}:
  3
  2
 ```
 """
-function offDiagonalElements(A::AbstractMatrix)
+function off_diagonal_elements(A::AbstractMatrix)
     collect(@view A[[ι for ι ∈ CartesianIndices(A) if ι[1] ≠ ι[2]]])
 end
 
 """
-    lowerOffDiagonalElements(A::AbstractMatrix)
+    lower_off_diagonal_elements(A::AbstractMatrix)
 
 returns a vector comprising of below diagonal elements of a matrix
 
@@ -266,17 +266,17 @@ returns a vector comprising of below diagonal elements of a matrix
 ```jldoctest
 julia> using UtilsKit
 
-julia> lowerOffDiagonalElements([1 2; 3 4])
+julia> lower_off_diagonal_elements([1 2; 3 4])
 1-element Vector{Int64}:
  3
 ```
 """
-function lowerOffDiagonalElements(A::AbstractMatrix)
+function lower_off_diagonal_elements(A::AbstractMatrix)
     collect(@view A[[ι for ι ∈ CartesianIndices(A) if ι[1] > ι[2]]])
 end
 
 """
-    upperOffDiagonalElements(A::AbstractMatrix)
+    upper_off_diagonal_elements(A::AbstractMatrix)
 
 returns a vector comprising of above diagonal elements of a matrix
 
@@ -285,19 +285,19 @@ returns a vector comprising of above diagonal elements of a matrix
 ```jldoctest
 julia> using UtilsKit
 
-julia> upperOffDiagonalElements([1 2; 3 4])
+julia> upper_off_diagonal_elements([1 2; 3 4])
 1-element Vector{Int64}:
  2
 ```
 """
-function upperOffDiagonalElements(A::AbstractMatrix)
+function upper_off_diagonal_elements(A::AbstractMatrix)
     collect(@view A[[ι for ι ∈ CartesianIndices(A) if ι[1] < ι[2]]])
 end
 
 
 
 """
-    stackAsColumns(arr)
+    stack_as_columns(arr)
 
 Stacks a collection of arrays along the first dimension.
 
@@ -318,13 +318,13 @@ Stacks a collection of arrays along the first dimension.
 ```jldoctest
 julia> using UtilsKit
 
-julia> stackAsColumns(([1, 2], [3, 4]))
+julia> stack_as_columns(([1, 2], [3, 4]))
 2×2 Matrix{Int64}:
  1  3
  2  4
 ```
 """
-function stackAsColumns(arr)
+function stack_as_columns(arr)
     mat = reduce(hcat, arr)
     return length(arr[1]) == 1 ? vec(mat) : mat
 end

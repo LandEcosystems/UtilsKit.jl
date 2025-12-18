@@ -13,12 +13,12 @@ import Pkg as StdPkg
 import TOML
 using Logging
 
-using ..ForMethods: getMethodSignatures
+using ..ForMethods: get_method_signatures
 
-export addExtensionToFunction
-export addExtensionToPackage
-export addPackage
-export removeExtensionFromPackage
+export add_extension_to_function
+export add_extension_to_package
+export add_package
+export remove_extension_from_package
 
 """
     assertPackageInRegistry(pkgname::String) -> Nothing
@@ -56,11 +56,11 @@ end
 
 
 # ---------------------------------------------------------------------------
-# addExtensionToFunction
+# add_extension_to_function
 # ---------------------------------------------------------------------------
 
 """
-    addExtensionToFunction(function_to_extend::Function, external_package::String; extension_location::Symbol = :Folder) -> String
+    add_extension_to_function(function_to_extend::Function, external_package::String; extension_location::Symbol = :Folder) -> String
 
 Create a folder-style Julia extension entry + include file scaffold for the given `function_to_extend`,
 and ensure `Project.toml` contains the needed `[weakdeps]` and `[extensions]` mapping.
@@ -85,7 +85,7 @@ This helper is conservative:
 include(joinpath(@__DIR__, "tmp_test_extension.jl"))
 using .TmpTestExtension
 
-addExtensionToFunction(MyPkg.MyInnerModule.someFunction, "NLsolve"; extension_location=:Folder)
+add_extension_to_function(MyPkg.MyInnerModule.someFunction, "NLsolve"; extension_location=:Folder)
 ```
 
 # Examples
@@ -96,12 +96,12 @@ This snippet is a **runnable** smoke-check that the function is available:
 ```jldoctest
 julia> using UtilsKit
 
-julia> UtilsKit.addExtensionToFunction isa Function
+julia> UtilsKit.add_extension_to_function isa Function
 true
 ```
 """
-function addExtensionToFunction(target_function::Function, external_package::String; extension_location::Symbol = :Folder)
-    _logStep("addExtensionToFunction", "Starting (external_package=$(external_package), extension_location=$(extension_location))")
+function add_extension_to_function(target_function::Function, external_package::String; extension_location::Symbol = :Folder)
+    _logStep("add_extension_to_function", "Starting (external_package=$(external_package), extension_location=$(extension_location))")
 
     local_module = parentmodule(target_function)
     root_pkg = Base.moduleroot(local_module)
@@ -138,14 +138,14 @@ function addExtensionToFunction(target_function::Function, external_package::Str
     code_exists = isfile(code_path)
 
     # Method signature strings (dedup default-arg expansions + repo-relative paths)
-    template_methods = getMethodSignatures(target_function; path=:relative_root)
+    template_methods = get_method_signatures(target_function; path=:relative_root)
     # Arg name + last-arg type inference (best-effort)
     template_arg_names, template_last_arg_type = _inferCommonArgNames(target_function)
 
     if entry_exists && code_exists
         error("Both extension entry and include exist.\nEntry: $(entry_file)\nInclude: $(code_path)\nDelete the include file to regenerate it.")
     elseif entry_exists && !code_exists
-        _warnStep("addExtensionToFunction", "Entry exists but include is missing. Creating include only (no overwrite of entry).")
+        _warnStep("add_extension_to_function", "Entry exists but include is missing. Creating include only (no overwrite of entry).")
         _writeExtensionInclude(ext_path, codefile; template=(;
             root_package_name=root_pkg_name,
             inner_module=inner,
@@ -156,7 +156,7 @@ function addExtensionToFunction(target_function::Function, external_package::Str
             last_arg_type=template_last_arg_type,
         ))
     elseif !entry_exists && code_exists
-        _warnStep("addExtensionToFunction", "Include exists but entry is missing. Creating entry that includes existing include (no changes to include).")
+        _warnStep("add_extension_to_function", "Include exists but entry is missing. Creating entry that includes existing include (no changes to include).")
         _writeExtensionEntry(root_pkg_name, inner, external_package, ext_path, ext_module_name, codefile)
     else
         _writeExtensionEntry(root_pkg_name, inner, external_package, ext_path, ext_module_name, codefile)
@@ -171,34 +171,34 @@ function addExtensionToFunction(target_function::Function, external_package::Str
         ))
     end
 
-    _logStep("addExtensionToFunction", "Done. Extension module name: $(ext_module_name)")
+    _logStep("add_extension_to_function", "Done. Extension module name: $(ext_module_name)")
     return ext_module_name
 end
 
 # ---------------------------------------------------------------------------
-# addExtensionToPackage
+# add_extension_to_package
 # ---------------------------------------------------------------------------
 
 """
-    addExtensionToPackage(local_package::Module, external_package::String; extension_location::Symbol = :File) -> String
+    add_extension_to_package(local_package::Module, external_package::String; extension_location::Symbol = :File) -> String
 
 Register a Julia extension for `local_package`:
 - create the extension entry file (`*Ext.jl`) with **no include**
 - update `Project.toml` (`[weakdeps]` + `[extensions]`)
 
-This does **not** create any include file scaffold; use [`addExtensionToFunction`](@ref) if you want that.
+This does **not** create any include file scaffold; use [`add_extension_to_function`](@ref) if you want that.
 
 # Examples
 
 ```jldoctest
 julia> using UtilsKit
 
-julia> UtilsKit.addExtensionToPackage isa Function
+julia> UtilsKit.add_extension_to_package isa Function
 true
 ```
 """
-function addExtensionToPackage(local_module::Module, external_package::String; extension_location::Symbol = :File)
-    _logStep("addExtensionToPackage", "Starting (external_package=$(external_package), extension_location=$(extension_location))")
+function add_extension_to_package(local_module::Module, external_package::String; extension_location::Symbol = :File)
+    _logStep("add_extension_to_package", "Starting (external_package=$(external_package), extension_location=$(extension_location))")
 
     root_pkg = Base.moduleroot(local_module)
     root_pkg_name = String(nameof(root_pkg))
@@ -224,14 +224,14 @@ function addExtensionToPackage(local_module::Module, external_package::String; e
     inner = length(rel) == 1 ? String(rel[1]) : nothing
 
     _writeExtensionEntry(root_pkg_name, inner, external_package, ext_path, ext_module_name, nothing)
-    _logStep("addExtensionToPackage", "Done. Extension module name: $(ext_module_name)")
+    _logStep("add_extension_to_package", "Done. Extension module name: $(ext_module_name)")
     return ext_module_name
 end
 
 
 
 """
-    addPackage(where_to_add, the_package_to_add)
+    add_package(where_to_add, the_package_to_add)
 
 Adds a specified Julia package to the environment of a given module or project.
 
@@ -254,7 +254,7 @@ Adds a specified Julia package to the environment of a given module or project.
 
 # Example:
 ```julia
-addPackage(MyModule, "DataFrames")
+add_package(MyModule, "DataFrames")
 ```
 
 # Examples
@@ -262,11 +262,11 @@ addPackage(MyModule, "DataFrames")
 ```jldoctest
 julia> using UtilsKit
 
-julia> UtilsKit.addPackage isa Function
+julia> UtilsKit.add_package isa Function
 true
 ```
 """
-function addPackage(target, package_name)
+function add_package(target, package_name)
 
     from_where = dirname(Base.active_project())
     dir_target = joinpath(dirname(pathof(target)), "../")
@@ -578,11 +578,11 @@ function _logStep(caller::AbstractString, message::AbstractString)
 end
 
 # ---------------------------------------------------------------------------
-# removeExtensionFromPackage
+# remove_extension_from_package
 # ---------------------------------------------------------------------------
 
 """
-    removeExtensionFromPackage(local_package::Module, external_package::String) -> String
+    remove_extension_from_package(local_package::Module, external_package::String) -> String
 
 Remove extension registration from `Project.toml` and attempt to remove `external_package` from the environment
 (`Pkg.rm` + `Pkg.resolve`) so the `Manifest.toml` is updated. Prints a shell-mode command to delete the
@@ -593,12 +593,12 @@ entry file or folder under `ext/` (auto-detected).
 ```jldoctest
 julia> using UtilsKit
 
-julia> UtilsKit.removeExtensionFromPackage isa Function
+julia> UtilsKit.remove_extension_from_package isa Function
 true
 ```
 """
-function removeExtensionFromPackage(local_module::Module, external_package::String)
-    _logStep("removeExtensionFromPackage", "Starting (external_package=$(external_package))")
+function remove_extension_from_package(local_module::Module, external_package::String)
+    _logStep("remove_extension_from_package", "Starting (external_package=$(external_package))")
 
     root_pkg = Base.moduleroot(local_module)
     root_pkg_name = String(nameof(root_pkg))
@@ -620,56 +620,56 @@ function removeExtensionFromPackage(local_module::Module, external_package::Stri
 
     if haskey(project, "extensions") && haskey(project["extensions"], ext_module_name)
         delete!(project["extensions"], ext_module_name)
-        _logStep("removeExtensionFromPackage", "Removed [extensions] mapping: $(ext_module_name) = \"$(external_package)\"")
+        _logStep("remove_extension_from_package", "Removed [extensions] mapping: $(ext_module_name) = \"$(external_package)\"")
     else
-        _warnStep("removeExtensionFromPackage", "No [extensions] mapping found for $(ext_module_name).")
+        _warnStep("remove_extension_from_package", "No [extensions] mapping found for $(ext_module_name).")
     end
     if haskey(project, "extensions") && haskey(project["extensions"], external_package) && project["extensions"][external_package] == ext_module_name
         delete!(project["extensions"], external_package)
-        _logStep("removeExtensionFromPackage", "Removed reversed mapping: $(external_package) = \"$(ext_module_name)\"")
+        _logStep("remove_extension_from_package", "Removed reversed mapping: $(external_package) = \"$(ext_module_name)\"")
     end
     if haskey(project, "weakdeps") && haskey(project["weakdeps"], external_package)
         delete!(project["weakdeps"], external_package)
-        _logStep("removeExtensionFromPackage", "Removed [weakdeps] entry for $(external_package).")
+        _logStep("remove_extension_from_package", "Removed [weakdeps] entry for $(external_package).")
     end
     if haskey(project, "deps") && haskey(project["deps"], external_package)
         delete!(project["deps"], external_package)
-        _warnStep("removeExtensionFromPackage", "Removed [deps] entry for $(external_package).")
+        _warnStep("remove_extension_from_package", "Removed [deps] entry for $(external_package).")
     end
 
     open(project_file, "w") do io
         TOML.print(io, project)
     end
-    _logStep("removeExtensionFromPackage", "Wrote: $(project_file)")
+    _logStep("remove_extension_from_package", "Wrote: $(project_file)")
 
     try
         StdPkg.activate(package_root)
         try
             StdPkg.rm(external_package)
-            _logStep("removeExtensionFromPackage", "Ran Pkg.rm(\"$(external_package)\") (Manifest updated).")
+            _logStep("remove_extension_from_package", "Ran Pkg.rm(\"$(external_package)\") (Manifest updated).")
         catch
-            _warnStep("removeExtensionFromPackage", "Pkg.rm(\"$(external_package)\") failed (maybe not installed).")
+            _warnStep("remove_extension_from_package", "Pkg.rm(\"$(external_package)\") failed (maybe not installed).")
         end
         try StdPkg.resolve() catch end
     catch
-        _warnStep("removeExtensionFromPackage", "Pkg environment update failed; Manifest may be unchanged.")
+        _warnStep("remove_extension_from_package", "Pkg environment update failed; Manifest may be unchanged.")
     end
 
     if file_exists && folder_exists
-        _warnStep("removeExtensionFromPackage", "Both file- and folder-style entries exist. Remove one (or both):")
-        _warnStep("removeExtensionFromPackage", "  ; rm -f \"$(file_entry)\"")
-        _warnStep("removeExtensionFromPackage", "  ; rm -rf \"$(ext_folder)\"")
+        _warnStep("remove_extension_from_package", "Both file- and folder-style entries exist. Remove one (or both):")
+        _warnStep("remove_extension_from_package", "  ; rm -f \"$(file_entry)\"")
+        _warnStep("remove_extension_from_package", "  ; rm -rf \"$(ext_folder)\"")
     elseif folder_exists
-        _warnStep("removeExtensionFromPackage", "Detected folder-style extension. Remove with:\n  ; rm -rf \"$(ext_folder)\"")
+        _warnStep("remove_extension_from_package", "Detected folder-style extension. Remove with:\n  ; rm -rf \"$(ext_folder)\"")
     elseif file_exists
-        _warnStep("removeExtensionFromPackage", "Detected file-style extension. Remove with:\n  ; rm -f \"$(file_entry)\"")
+        _warnStep("remove_extension_from_package", "Detected file-style extension. Remove with:\n  ; rm -f \"$(file_entry)\"")
     else
-        _warnStep("removeExtensionFromPackage", "No extension entry found under ext/. Potential commands:")
-        _warnStep("removeExtensionFromPackage", "  ; rm -f \"$(file_entry)\"")
-        _warnStep("removeExtensionFromPackage", "  ; rm -rf \"$(ext_folder)\"")
+        _warnStep("remove_extension_from_package", "No extension entry found under ext/. Potential commands:")
+        _warnStep("remove_extension_from_package", "  ; rm -f \"$(file_entry)\"")
+        _warnStep("remove_extension_from_package", "  ; rm -rf \"$(ext_folder)\"")
     end
 
-    _logStep("removeExtensionFromPackage", "Done. Extension module name: $(ext_module_name)")
+    _logStep("remove_extension_from_package", "Done. Extension module name: $(ext_module_name)")
     return ext_module_name
 end
 

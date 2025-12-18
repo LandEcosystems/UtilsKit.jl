@@ -8,15 +8,15 @@ Number utilities:
 """
 module ForNumber
 
-export clampZeroOne
-export cumSum!
-export getFrac
-export isInvalidNumber
-export atLeastZero, atLeastOne, atMostZero, atMostOne
-export replaceInvalidNumber
+export clamp_zero_one
+export cumulative_sum!
+export safe_divide
+export is_invalid_number
+export replace_invalid_number
+export at_least_zero, at_least_one, at_most_zero, at_most_one
 
 """
-    clampZeroOne(num)
+    clamp_zero_one(num)
 
 returns max(min(num, 1), 0)
 
@@ -25,19 +25,19 @@ returns max(min(num, 1), 0)
 ```jldoctest
 julia> using UtilsKit
 
-julia> clampZeroOne(2.0)
+julia> clamp_zero_one(2.0)
 1.0
 
-julia> clampZeroOne(-0.5)
+julia> clamp_zero_one(-0.5)
 0.0
 ```
 """
-function clampZeroOne(num)
+function clamp_zero_one(num)
     return clamp(num, zero(num), one(num))
 end
 
 """
-    cumSum!(i_n::AbstractVector, o_ut::AbstractVector)
+    cumulative_sum!(output::AbstractVector, input::AbstractVector)
 
 fill out the output vector with the cumulative sum of elements from input vector
 
@@ -48,14 +48,14 @@ julia> using UtilsKit
 
 julia> out = zeros(Int, 3);
 
-julia> cumSum!([1, 2, 3], out)
+julia> cumulative_sum!(out, [1, 2, 3])
 3-element Vector{Int64}:
  1
  3
  6
 ```
 """
-function cumSum!(input::AbstractVector, output::AbstractVector)
+function cumulative_sum!(output::AbstractVector, input::AbstractVector)
     for i ∈ eachindex(input)
         output[i] = sum(input[1:i])
     end
@@ -65,7 +65,7 @@ end
 
 
 """
-    getFrac(num, den)
+    safe_divide(num, den)
 
 return either a ratio or numerator depending on whether denomitor is a zero
 
@@ -74,14 +74,14 @@ return either a ratio or numerator depending on whether denomitor is a zero
 ```jldoctest
 julia> using UtilsKit
 
-julia> getFrac(1.0, 2.0)
+julia> safe_divide(1.0, 2.0)
 0.5
 
-julia> getFrac(1.0, 0.0)
+julia> safe_divide(1.0, 0.0)
 1.0
 ```
 """
-function getFrac(numerator, denominator)
+function safe_divide(numerator, denominator)
     if !iszero(denominator)
         ratio = numerator / denominator
     else
@@ -92,7 +92,7 @@ end
 
 
 """
-    isInvalidNumber(_data::Number)
+    is_invalid_number(_data::Number)
 
 Checks if a number is invalid (e.g., `nothing`, `missing`, `NaN`, or `Inf`).
 
@@ -107,21 +107,21 @@ Checks if a number is invalid (e.g., `nothing`, `missing`, `NaN`, or `Inf`).
 ```jldoctest
 julia> using UtilsKit
 
-julia> isInvalidNumber(NaN)
+julia> is_invalid_number(NaN)
 true
 
-julia> isInvalidNumber(1.0)
+julia> is_invalid_number(1.0)
 false
 ```
 """
-function isInvalidNumber(x)
+function is_invalid_number(x)
     return isnothing(x) || ismissing(x) || isnan(x) || isinf(x)
 end
 
 
 
 """
-    atLeastZero(num)
+    at_least_zero(num)
 
 returns max(num, 0)
 
@@ -130,17 +130,17 @@ returns max(num, 0)
 ```jldoctest
 julia> using UtilsKit
 
-julia> atLeastZero(-1.0)
+julia> at_least_zero(-1.0)
 0.0
 ```
 """
-function atLeastZero(num)
+function at_least_zero(num)
     return max(num, zero(num))
 end
 
 
 """
-    atLeastOne(num)
+    at_least_one(num)
 
 returns max(num, 1)
 
@@ -149,17 +149,17 @@ returns max(num, 1)
 ```jldoctest
 julia> using UtilsKit
 
-julia> atLeastOne(0.5)
+julia> at_least_one(0.5)
 1.0
 ```
 """
-function atLeastOne(num)
+function at_least_one(num)
     return max(num, one(num))
 end
 
 
 """
-    atMostZero(num)
+    at_most_zero(num)
 
 returns min(num, 0)
 
@@ -168,17 +168,17 @@ returns min(num, 0)
 ```jldoctest
 julia> using UtilsKit
 
-julia> atMostZero(1.0)
+julia> at_most_zero(1.0)
 0.0
 ```
 """
-function atMostZero(num)
+function at_most_zero(num)
     return min(num, zero(num))
 end
 
 
 """
-    atMostOne(num)
+    at_most_one(num)
 
 returns min(num, 1)
 
@@ -187,17 +187,17 @@ returns min(num, 1)
 ```jldoctest
 julia> using UtilsKit
 
-julia> atMostOne(2.0)
+julia> at_most_one(2.0)
 1.0
 ```
 """
-function atMostOne(num)
+function at_most_one(num)
     return min(num, one(num))
 end
 
 
 """
-    replaceInvalidNumber(_data, _data_fill)
+    replace_invalid_number(_data, _data_fill)
 
 Replaces invalid numbers in the input with a specified fill value.
 
@@ -213,15 +213,15 @@ The input number if valid, otherwise the fill value.
 ```jldoctest
 julia> using UtilsKit
 
-julia> replaceInvalidNumber(NaN, 0.0)
+julia> replace_invalid_number(NaN, 0.0)
 0.0
 
-julia> replaceInvalidNumber(2.0, 0.0)
+julia> replace_invalid_number(2.0, 0.0)
 2.0
 ```
 """
-function replaceInvalidNumber(x, fill_value)
-    x = isInvalidNumber(x) ? fill_value : x
+function replace_invalid_number(x, fill_value)
+    x = is_invalid_number(x) ? fill_value : x
     return x
 end
 
