@@ -14,7 +14,7 @@
 [codecov-img]: https://codecov.io/gh/LandEcosystems/OmniTools.jl/branch/main/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/LandEcosystems/OmniTools.jl
 
-[julia-img]: https://img.shields.io/badge/julia-v1.6+-blue.svg
+[julia-img]: https://img.shields.io/badge/julia-v1.10+-blue.svg
 [julia-url]: https://julialang.org/
 
 A comprehensive utility package providing foundational functions for data manipulation, collections management, display formatting, and type introspection.
@@ -68,9 +68,6 @@ bool_arr = positive_mask(arr)
 # String utilities
 str = to_uppercase_first("hello_world", "Time")  # Returns :TimeHelloWorld
 
-# Generate type documentation
-using OmniTools
-doc_str = get_type_docstring(SomeType)
 ```
 
 ## Main Functionality
